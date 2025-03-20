@@ -9,6 +9,7 @@
     "build:ts": "tsc",
     "build:wasm": "cd wasm && wasm-pack build --target nodejs --out-dir ../pkg",
     "build:bundle": "node build-bundle.js",
+    "build:optimized": "bun build-optimized.ts",
     "test": "bun test"
   },
   "keywords": [

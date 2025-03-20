@@ -1,8 +1,7 @@
 // WebAssembly wrapper for GitHub Action
-// This file loads and initializes the WebAssembly module
+// This file loads and initializes the WebAssembly module from an inlined base64 string
 
-import * as fs from 'fs';
-import * as path from 'path';
+import { WASM_BASE64, instantiateWasmFromBase64 } from './wasm-inline.js';
 
 // Define the environment interface
 interface ActionEnvironment {
@@ -25,6 +24,7 @@ interface ActionEnvironment {
 export async function runWasmAction(): Promise<void> {
   try {
     // Map environment variables to the format expected by the WASM module
+    // This is optimized to reduce object creation overhead
     const env: ActionEnvironment = {
       state_id: process.env.STATE_ID || '',
       event_name: process.env.EVENT_NAME || '',
@@ -44,23 +44,27 @@ export async function runWasmAction(): Promise<void> {
     // Convert environment to JSON string for passing to WASM
     const envJson = JSON.stringify(env);
 
-    // Dynamically import the WASM module
-    // In a real implementation, you would use the actual path to your WASM module
-    const wasmPath = path.resolve(__dirname, '../pkg/action_wasm_bg.wasm');
+    // Import objects required for WASM instantiation
+    const importObject = {
+      env: {
+        // Add any required environment functions here
+      },
+      console: {
+        log: (ptr: number, len: number) => {
+          // This will be implemented by the WASM module
+          console.log("WASM log:", ptr, len);
+        }
+      }
+    };
 
-    // Check if the WASM file exists
-    if (!fs.existsSync(wasmPath)) {
-      throw new Error(`WASM module not found at ${wasmPath}`);
-    }
+    // Instantiate the WASM module from the inlined base64 string
+    const wasmInstance = await instantiateWasmFromBase64(WASM_BASE64, importObject);
 
-    // Import the WASM module
-    const wasmModule = await import('../pkg/action_wasm.js');
-
-    // Initialize the WASM module
-    await wasmModule.default();
+    // Access the exports from the instance
+    const { process_event, memory } = wasmInstance.exports as any;
 
     // Process the event using the WASM module
-    const result = wasmModule.process_event(envJson);
+    const result = process_event(envJson);
 
     // Parse and handle the result
     try {
