@@ -3,7 +3,7 @@
  * This is a Full Stack with Rust implementation (Tier 3)
  */
 
-import { EventPayload } from '@your-org/plugin-sdk';
+import { EventPayload } from 'plugin-sdk';
 
 /**
  * Issue opened event payload

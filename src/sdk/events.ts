@@ -31,7 +31,8 @@ class EventManager implements EventRegistry {
     if (!this.handlers.has(event)) {
       this.handlers.set(event, new Set());
     }
-    this.handlers.get(event)!.add(handler);
+    // Type assertion to handle the generic type
+    this.handlers.get(event)!.add(handler as unknown as EventHandler);
   }
 
   /**
@@ -39,7 +40,8 @@ class EventManager implements EventRegistry {
    */
   once<T extends EventPayload>(event: string, handler: EventHandler<T>): void {
     const onceHandler: EventHandler = async (payload, context) => {
-      await handler(payload, context);
+      // Type assertion to handle the generic type
+      await (handler as EventHandler<EventPayload>)(payload, context);
       this.off(event, onceHandler);
     };
     this.on(event, onceHandler);

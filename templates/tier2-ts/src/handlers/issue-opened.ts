@@ -3,7 +3,7 @@
  * This is a TypeScript + WASM implementation (Tier 2)
  */
 
-import { getContext, EventHandler } from '@your-org/plugin-sdk';
+import { getContext, EventHandler } from 'plugin-sdk';
 import { IssueOpenedPayload, LabelMapping } from '../types.js';
 
 /**

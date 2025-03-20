@@ -3,7 +3,7 @@
  * This is a TypeScript + WASM implementation (Tier 2)
  */
 
-import { init, on } from '@your-org/plugin-sdk';
+import { init, on } from 'plugin-sdk';
 import { wasmConfig } from './wasm-config.js';
 import handleIssueOpened from './handlers/issue-opened.js';
 

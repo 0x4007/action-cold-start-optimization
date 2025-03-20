@@ -3,7 +3,7 @@
  * This is a Full Stack with Rust implementation (Tier 3)
  */
 
-import { init, on } from '@your-org/plugin-sdk';
+import { init, on } from 'plugin-sdk';
 import handleIssueOpened from './handlers/issue-opened.js';
 
 /**

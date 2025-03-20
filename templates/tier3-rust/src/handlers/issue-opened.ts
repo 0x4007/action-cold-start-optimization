@@ -3,7 +3,7 @@
  * This is a Full Stack with Rust implementation (Tier 3)
  */
 
-import { getContext, EventHandler } from '@your-org/plugin-sdk';
+import { getContext, EventHandler } from 'plugin-sdk';
 import { IssueOpenedPayload, IssueContent } from '../types.js';
 
 // Import the custom WASM function

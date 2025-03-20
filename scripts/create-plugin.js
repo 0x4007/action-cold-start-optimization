@@ -49,7 +49,16 @@ execSync(`cp -r ${templatePath}/* ${destinationPath}/`);
 
 // Install dependencies
 console.log('Installing dependencies...');
-execSync('npm install', { cwd: destinationPath, stdio: 'inherit' });
+try {
+  // First, make sure the SDK is built
+  execSync('npm run build:sdk', { stdio: 'inherit' });
+
+  // Then install dependencies in the new plugin
+  execSync('npm install', { cwd: destinationPath, stdio: 'inherit' });
+} catch (error) {
+  console.warn('Warning: Could not install dependencies automatically.');
+  console.warn('You may need to run "npm install" manually in the plugin directory.');
+}
 
 console.log(`
 Plugin created successfully!
