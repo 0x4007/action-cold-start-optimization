@@ -1,0 +1,22 @@
+{
+  "name": "github-action-plugin",
+  "version": "1.0.0",
+  "description": "GitHub Action for plugin execution",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist",
+    "test": "bun test"
+  },
+  "keywords": [
+    "github",
+    "action",
+    "plugin"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "latest"
+  }
+}

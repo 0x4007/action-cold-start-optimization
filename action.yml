@@ -1,0 +1,56 @@
+name: "the name of the plugin"
+description: "GitHub Action for plugin execution"
+author: "Your name or organization here"
+
+# Add your action's branding here if desired
+# branding:
+#   icon: heart
+#   color: red
+
+# Define your inputs here, mapping from the workflow_dispatch inputs
+inputs:
+  stateId:
+    description: "State Id"
+    required: true
+  eventName:
+    description: "Event Name"
+    required: true
+  eventPayload:
+    description: "Event Payload"
+    required: true
+  settings:
+    description: "Settings"
+    required: true
+  authToken:
+    description: "Auth Token"
+    required: true
+  ref:
+    description: "Ref"
+    required: true
+  signature:
+    description: "The kernel signature"
+    required: true
+  command:
+    description: "Command from the Kernel"
+    required: false
+  PLUGIN_GITHUB_TOKEN:
+    description: "GitHub Token for plugin operations"
+    required: true
+  KERNEL_PUBLIC_KEY:
+    description: "Kernel public key for verification"
+    required: true
+  LOG_LEVEL:
+    description: "Logging level"
+    required: false
+    default: "info"
+  SUPABASE_URL:
+    description: "Supabase URL"
+    required: true
+  SUPABASE_KEY:
+    description: "Supabase Key"
+    required: true
+
+# The action will run directly using a custom runtime
+runs:
+  using: "node20"
+  main: "dist/index.js"
