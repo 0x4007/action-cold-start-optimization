@@ -63,9 +63,9 @@ src/
 └── index.ts              # Main entry point
 
 templates/               # Templates directory
-├── tier1-js/            # JavaScript-only template
-├── tier2-ts/            # TypeScript + WASM template
-└── tier3-rust/          # Full Stack with Rust template
+├── js/                  # JavaScript-only template
+├── ts/                  # TypeScript + WASM template
+└── rust/                # Full Stack with Rust template
 
 wasm/                    # WASM directory
 ├── src/                 # Rust source code
@@ -97,13 +97,13 @@ npm run build
 ### Creating a New Plugin
 
 1. Choose a template based on your skill level and performance requirements:
-   - Tier 1: JavaScript-Only
-   - Tier 2: TypeScript + WASM
-   - Tier 3: Full Stack with Rust
+   - JavaScript (js): JavaScript-Only
+   - TypeScript (ts): TypeScript + WASM
+   - Rust (rust): Full Stack with Rust
 
-2. Copy the template to a new directory:
+2. Create a new plugin using the create-plugin script:
    ```bash
-   cp -r templates/tier1-js my-plugin
+   npm run create:plugin -- js my-plugin
    cd my-plugin
    ```
 

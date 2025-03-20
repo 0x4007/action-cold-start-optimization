@@ -3,7 +3,7 @@
 /**
  * Script to create a new plugin from a template
  * Usage: npm run create:plugin -- <template> <destination>
- * Example: npm run create:plugin -- tier1-js my-plugin
+ * Example: npm run create:plugin -- js my-plugin
  */
 
 import { execSync } from 'child_process';
@@ -18,7 +18,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const args = process.argv.slice(2);
 if (args.length < 2) {
   console.error('Usage: npm run create:plugin -- <template> <destination>');
-  console.error('Available templates: tier1-js, tier2-ts, tier3-rust');
+  console.error('Available templates: js, ts, rust');
   process.exit(1);
 }
 
@@ -29,7 +29,7 @@ const destination = args[1];
 const templatePath = resolve(__dirname, '..', 'templates', template);
 if (!existsSync(templatePath)) {
   console.error(`Template '${template}' not found`);
-  console.error('Available templates: tier1-js, tier2-ts, tier3-rust');
+  console.error('Available templates: js, ts, rust');
   process.exit(1);
 }
 
