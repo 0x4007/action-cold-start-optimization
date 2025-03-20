@@ -1,211 +1,188 @@
-# Plugin SDK for WebAssembly-Optimized GitHub Actions
+# GitHub Actions Plugin SDK
 
-This SDK provides a simple API for developing GitHub Action plugins with WebAssembly optimization. It offers a tiered development model that accommodates developers of different skill levels.
+This SDK provides a framework for building optimized GitHub Actions plugins with WebAssembly support.
 
-## Tiered Development Model
+## Features
 
-### Tier 1: JavaScript-Only Development
+- **WebAssembly Optimization**: Improve cold start times by using WebAssembly for performance-critical operations
+- **Type-Safe Event Handling**: TypeScript definitions for GitHub webhook events
+- **Simplified GitHub API Access**: Wrapper around Octokit for common operations
+- **Context Management**: Easy access to GitHub context, utilities, and configuration
+- **Flexible Plugin Architecture**: Support for JavaScript, TypeScript, and Rust implementations
 
-For developers who just want to create simple plugins without dealing with WebAssembly complexity.
-
-- Pure JavaScript API that abstracts away all WASM complexity
-- Pre-compiled WASM module for performance-critical operations
-- Simple hook-based programming model
-- No Rust knowledge required
-
-### Tier 2: TypeScript + WASM Integration
-
-For developers who want more control and type safety.
-
-- TypeScript interfaces for WASM interaction
-- Configuration options for WASM usage
-- Performance monitoring capabilities
-- Extension points for custom optimizations
-
-### Tier 3: Full Stack with Rust
-
-For developers who need maximum performance.
-
-- Complete access to modify Rust code
-- Custom WASM optimization capabilities
-- Advanced performance tuning options
-
-## Getting Started
-
-### Installation
+## Installation
 
 ```bash
-npm install @your-org/plugin-sdk
+npm install plugin-sdk
 ```
 
-### Basic Usage
+## Usage
+
+### JavaScript Plugin (Tier 1)
 
 ```javascript
-const { init, on, getContext } = require('@your-org/plugin-sdk');
+import { init, on, getContext } from 'plugin-sdk';
+
+// Handle issue.opened event
+on('issue.opened', async (payload) => {
+  const { github, log } = getContext();
+
+  log('Processing new issue');
+
+  // Get issue details
+  const issueNumber = payload.issue.number;
+  const issueTitle = payload.issue.title;
+
+  // Add a comment
+  await github.createComment(issueNumber, 'Thanks for opening this issue!');
+
+  log('Issue processing completed');
+});
 
 // Initialize the SDK
-async function main() {
-  await init();
+init().catch(error => {
+  console.error('Plugin initialization failed:', error);
+  process.exit(1);
+});
+```
 
-  // Register event handlers
-  on('issues.opened', handleIssueOpened);
+### TypeScript Plugin (Tier 2)
 
-  console.log('Plugin initialized');
-}
+```typescript
+import { init, on, getContext, EventHandler } from 'plugin-sdk';
+import { IssueOpenedPayload } from 'plugin-sdk/types';
 
-// Event handler
-async function handleIssueOpened(payload) {
+// Configure WebAssembly optimizations
+const wasmConfig = {
+  operations: {
+    parseJSON: true,
+    validatePayload: true,
+    computeHash: true
+  },
+  monitoring: {
+    enabled: true,
+    logPerformance: true
+  }
+};
+
+// Handle issue.opened event with type safety
+const handleIssueOpened: EventHandler<IssueOpenedPayload> = async (payload) => {
   const { github, utils, log } = getContext();
 
   log('Processing new issue');
 
-  // Your code here
-}
+  // Get issue details
+  const issueNumber = payload.issue.number;
+  const issueTitle = payload.issue.title;
 
-// Start the plugin
-main().catch(console.error);
+  // Add a comment
+  await github.createComment(issueNumber, 'Thanks for opening this issue!');
+
+  log('Issue processing completed');
+};
+
+// Register event handler
+on('issue.opened', handleIssueOpened);
+
+// Initialize the SDK with WebAssembly optimizations
+init({ wasm: wasmConfig }).catch(error => {
+  console.error('Plugin initialization failed:', error);
+  process.exit(1);
+});
 ```
+
+### Rust + TypeScript Plugin (Tier 3)
+
+For maximum performance, you can implement performance-critical functions in Rust and compile them to WebAssembly.
+
+```rust
+// wasm/src/lib.rs
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+pub fn parse_and_validate_json(input: &str) -> Result<JsValue, JsValue> {
+    // Implement your Rust logic here
+    // This will be compiled to WebAssembly
+}
+```
+
+```typescript
+// src/index.ts
+import { init, on } from 'plugin-sdk';
+import * as wasm from '../wasm/pkg';
+
+// Initialize the SDK with Rust WASM functions
+init({
+  wasm: {
+    module: wasm,
+    functions: {
+      parseJSON: wasm.parse_and_validate_json
+    }
+  }
+}).catch(error => {
+  console.error('Plugin initialization failed:', error);
+  process.exit(1);
+});
+```
+
+## Development Tools
+
+### Plugin Generator
+
+Create a new plugin with the interactive generator:
+
+```bash
+bun run create:plugin:interactive
+```
+
+### Local Development Server
+
+Test your plugin with the local development server:
+
+```bash
+bun run dev:server --plugin-dir my-plugin
+```
+
+### GitHub Actions Integration
+
+Generate a GitHub Action from your plugin:
+
+```bash
+bun run generate:action my-plugin
+```
+
+## Performance Optimization
+
+The SDK includes several features to optimize performance and reduce cold start times:
+
+1. **WebAssembly Acceleration**: Performance-critical operations can be offloaded to WebAssembly
+2. **Lazy Loading**: Heavy dependencies are loaded only when needed
+3. **Optimized Bundle**: The SDK is bundled to minimize size and startup time
+4. **Caching**: Results of expensive operations are cached
 
 ## API Reference
 
 ### Core Functions
 
-#### `init(options?: InitOptions): Promise<void>`
+- `init(options?)`: Initialize the SDK
+- `on(event, handler)`: Register an event handler
+- `getContext()`: Get the current context (github, utils, log, etc.)
 
-Initializes the SDK with the specified options.
+### GitHub API
 
-```typescript
-interface InitOptions {
-  wasm?: {
-    operations?: {
-      parseJSON?: boolean;
-      validatePayload?: boolean;
-      computeHash?: boolean;
-    };
-    monitoring?: {
-      enabled?: boolean;
-      logPerformance?: boolean;
-    };
-  };
-}
-```
+- `github.createComment(issueNumber, body)`: Create a comment on an issue or PR
+- `github.addLabels(issueNumber, labels)`: Add labels to an issue or PR
+- `github.octokit`: Access the full Octokit API
 
-#### `on<T>(event: string, handler: EventHandler<T>): void`
+### Utilities
 
-Registers an event handler for the specified event.
+- `utils.parseJSON(json)`: Parse JSON with error handling
+- `utils.computeHash(data)`: Compute a hash of the data
+- `utils.validatePayload(payload, schema)`: Validate a payload against a schema
 
-#### `once<T>(event: string, handler: EventHandler<T>): void`
+## Contributing
 
-Registers a one-time event handler for the specified event.
-
-#### `off(event: string, handler?: EventHandler): void`
-
-Unregisters an event handler for the specified event.
-
-#### `getContext(): PluginContext`
-
-Gets the plugin context, which provides access to GitHub API, environment variables, and utility functions.
-
-### Context Object
-
-```typescript
-interface PluginContext {
-  github: GitHubAPI;
-  env: PluginEnvironment;
-  utils: PluginUtils;
-  log(message: string, level?: 'info' | 'warn' | 'error'): void;
-}
-```
-
-#### GitHub API
-
-```typescript
-interface GitHubAPI {
-  octokit: Octokit;
-  repo: { owner: string; repo: string };
-  createComment(issueNumber: number, body: string): Promise<void>;
-  createIssue(title: string, body: string, labels?: string[]): Promise<number>;
-  // More methods...
-}
-```
-
-#### Environment Variables
-
-```typescript
-interface PluginEnvironment {
-  stateId: string;
-  eventName: string;
-  eventPayload: string;
-  settings: string;
-  authToken: string;
-  ref: string;
-  signature: string;
-  command: string;
-  pluginGithubToken: string;
-  kernelPublicKey: string;
-  logLevel: string;
-  supabaseUrl: string;
-  supabaseKey: string;
-}
-```
-
-#### Utility Functions
-
-```typescript
-interface PluginUtils {
-  parseJSON<T>(json: string): T;
-  validatePayload(schema: any, payload: any): boolean;
-  computeHash(data: string): string;
-  // More functions...
-}
-```
-
-## Configuration System
-
-The SDK provides a configuration system that simplifies plugin creation:
-
-```javascript
-// plugin.config.js
-module.exports = {
-  name: 'My Plugin',
-  description: 'This plugin does something awesome',
-  author: 'Your Name',
-
-  action: {
-    icon: 'code',
-    color: 'blue',
-    inputs: {
-      customSetting: {
-        description: 'A custom setting for the plugin',
-        required: false,
-        default: 'default value'
-      }
-    }
-  },
-
-  events: {
-    'issues.opened': './src/handlers/issue-opened.js'
-  }
-};
-```
-
-## Templates
-
-The SDK provides templates for each tier of the development model:
-
-- Tier 1: JavaScript-Only Template
-- Tier 2: TypeScript + WASM Template
-- Tier 3: Full Stack with Rust Template
-
-You can use these templates as a starting point for your plugin development.
-
-## Performance Comparison
-
-| Approach | Cold Start Time | Processing Time | Memory Usage |
-|----------|----------------|-----------------|--------------|
-| Tier 1 (JS Only) | ~400ms | ~120ms | ~40MB |
-| Tier 2 (TS+WASM) | ~350ms | ~80ms | ~35MB |
-| Tier 3 (Full Rust) | ~300ms | ~30ms | ~30MB |
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## License
 
