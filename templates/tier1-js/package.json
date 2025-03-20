@@ -1,0 +1,23 @@
+{
+  "name": "issue-auto-labeler",
+  "version": "1.0.0",
+  "description": "GitHub Action for automatically labeling issues based on content",
+  "main": "dist/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "build": "mkdir -p dist && cp -r src/* dist/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "github",
+    "action",
+    "plugin",
+    "issues",
+    "labels"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@your-org/plugin-sdk": "^1.0.0"
+  }
+}

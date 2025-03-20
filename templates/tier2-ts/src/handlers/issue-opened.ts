@@ -1,0 +1,63 @@
+/**
+ * Handler for issue.opened event
+ * This is a TypeScript + WASM implementation (Tier 2)
+ */
+
+import { getContext, EventHandler } from '@your-org/plugin-sdk';
+import { IssueOpenedPayload, LabelMapping } from '../types.js';
+
+/**
+ * Handler for issue.opened event
+ * Automatically adds labels based on issue content
+ */
+const handleIssueOpened: EventHandler<IssueOpenedPayload> = async (payload) => {
+  const { github, utils, log } = getContext();
+
+  log('Processing new issue');
+
+  // Get the issue details
+  const issueNumber = payload.issue.number;
+  const issueTitle = payload.issue.title;
+  const issueBody = payload.issue.body || '';
+
+  // Get label mapping from inputs
+  const labelMappingJson = process.env.INPUT_LABELMAPPING || '{}';
+  const labelMapping = utils.parseJSON<LabelMapping>(labelMappingJson);
+
+  // Determine which labels to apply
+  const labelsToApply: string[] = [];
+
+  // Check each label's keywords against the issue content
+  for (const [label, keywords] of Object.entries(labelMapping)) {
+    const content = `${issueTitle} ${issueBody}`.toLowerCase();
+
+    // If any keyword is found in the content, add the label
+    if (keywords.some(keyword => content.includes(keyword.toLowerCase()))) {
+      labelsToApply.push(label);
+    }
+  }
+
+  // Apply labels if any were found
+  if (labelsToApply.length > 0) {
+    log(`Adding labels: ${labelsToApply.join(', ')}`);
+
+    // Add labels to the issue
+    await github.octokit.issues.addLabels({
+      ...github.repo,
+      issue_number: issueNumber,
+      labels: labelsToApply
+    });
+
+    // Add a comment to the issue
+    await github.createComment(
+      issueNumber,
+      `I've automatically added the following labels: ${labelsToApply.join(', ')}`
+    );
+  } else {
+    log('No matching labels found');
+  }
+
+  log('Issue processing completed');
+};
+
+export default handleIssueOpened;

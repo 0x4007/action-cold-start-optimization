@@ -5,19 +5,22 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "build": "npm run build:wasm && npm run build:ts",
+    "build": "npm run build:wasm && npm run build:ts && npm run build:sdk",
     "build:ts": "tsc",
     "build:wasm": "cd wasm && wasm-pack build --target nodejs --out-dir ../pkg",
     "build:bundle": "node build-bundle.js",
     "build:optimized": "bun build-optimized.ts",
-    "test": "bun test"
+    "build:sdk": "tsc -p tsconfig.sdk.json",
+    "test": "bun test",
+    "create:plugin": "node scripts/create-plugin.js"
   },
   "keywords": [
     "github",
     "action",
     "plugin",
     "wasm",
-    "webassembly"
+    "webassembly",
+    "sdk"
   ],
   "author": "",
   "license": "MIT",

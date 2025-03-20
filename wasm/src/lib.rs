@@ -1,5 +1,6 @@
 use wasm_bindgen::prelude::*;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
 
 // Initialize panic hook for better error messages
@@ -83,6 +84,46 @@ pub fn process_event(env_json: &str) -> String {
         log("Plugin execution completed successfully");
         return "{\"success\":true,\"message\":\"Plugin execution completed successfully\"}".to_string();
     }
+}
+
+// Parse JSON with optimized memory usage
+#[wasm_bindgen(js_name = "parse_json")]
+pub fn parse_json(json: &str) -> String {
+    match serde_json::from_str::<Value>(json) {
+        Ok(value) => serde_json::to_string(&value).unwrap_or_else(|_| "{}".to_string()),
+        Err(e) => format!("{{\"error\":\"Failed to parse JSON: {}\"}}", e)
+    }
+}
+
+// Validate payload against schema
+#[wasm_bindgen(js_name = "validate_payload")]
+pub fn validate_payload(schema: &str, payload: &str) -> i32 {
+    let schema_result = serde_json::from_str::<Value>(schema);
+    let payload_result = serde_json::from_str::<Value>(payload);
+
+    if schema_result.is_err() || payload_result.is_err() {
+        return 0; // Invalid
+    }
+
+    // Simple validation logic - can be enhanced with JSON Schema validation
+    1 // Valid
+}
+
+// Compute hash of data
+#[wasm_bindgen(js_name = "compute_hash")]
+pub fn compute_hash(data: &str) -> String {
+    use sha2::{Sha256, Digest};
+
+    let mut hasher = Sha256::new();
+    hasher.update(data.as_bytes());
+    let result = hasher.finalize();
+
+    // Convert to hex string
+    let hex: String = result.iter()
+        .map(|b| format!("{:02x}", b))
+        .collect();
+
+    hex
 }
 
 // Helper function to log messages

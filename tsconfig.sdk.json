@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist/sdk",
+    "declaration": true,
+    "declarationDir": "dist/sdk/types"
+  },
+  "include": ["src/sdk/**/*"],
+  "exclude": ["node_modules", "pkg", "wasm", "templates"]
+}
