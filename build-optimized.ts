@@ -97,7 +97,7 @@ try {
     entryPoints: ['./src/index.ts'],
     bundle: true,
     platform: 'node',
-    target: 'node16',
+    target: 'node20',
     format: 'esm',
     outfile: join(DIST_DIR, 'index.js'),
     minify: true,

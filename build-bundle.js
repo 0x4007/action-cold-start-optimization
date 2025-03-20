@@ -18,7 +18,7 @@ async function bundleJs() {
       entryPoints: ['./src/index.ts'],
       bundle: true,
       platform: 'node',
-      target: 'node16',
+      target: 'node20',
       format: 'esm',
       outfile: './dist/index.js',
       external: ['./pkg/*'],

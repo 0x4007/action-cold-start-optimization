@@ -265,7 +265,7 @@ Where `WASM_OPT_ARGS` includes:
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v16 or later)
+- [Node.js](https://nodejs.org/) (v20 or later)
 - [Rust](https://www.rust-lang.org/tools/install)
 - [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
 - [Bun](https://bun.sh/) (for optimized build)
