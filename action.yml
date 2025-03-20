@@ -1,5 +1,5 @@
 name: "the name of the plugin"
-description: "GitHub Action for plugin execution"
+description: "GitHub Action for plugin execution with WebAssembly optimization"
 author: "Your name or organization here"
 
 # Add your action's branding here if desired
@@ -49,6 +49,10 @@ inputs:
   SUPABASE_KEY:
     description: "Supabase Key"
     required: true
+  USE_WASM:
+    description: "Whether to use WebAssembly for faster execution"
+    required: false
+    default: "true"
 
 # The action will run directly using a custom runtime
 runs:

@@ -1,22 +1,30 @@
 {
   "name": "github-action-plugin",
   "version": "1.0.0",
-  "description": "GitHub Action for plugin execution",
+  "description": "GitHub Action for plugin execution with WebAssembly optimization",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist",
+    "build": "npm run build:wasm && npm run build:ts",
+    "build:ts": "tsc",
+    "build:wasm": "cd wasm && wasm-pack build --target nodejs --out-dir ../pkg",
+    "build:bundle": "node build-bundle.js",
     "test": "bun test"
   },
   "keywords": [
     "github",
     "action",
-    "plugin"
+    "plugin",
+    "wasm",
+    "webassembly"
   ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "^20.11.0",
     "bun-types": "latest",
-    "typescript": "latest"
+    "esbuild": "^0.19.11",
+    "typescript": "latest",
+    "wasm-pack": "^0.12.1"
   }
 }
