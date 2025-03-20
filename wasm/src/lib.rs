@@ -38,7 +38,7 @@ pub struct Environment {
 
 // Main entry point for the WASM module
 // Optimized for faster execution and reduced memory allocations
-#[wasm_bindgen]
+#[wasm_bindgen(js_name = "process_event")]
 pub fn process_event(env_json: &str) -> String {
     // Parse the environment variables with minimal allocations
     let env: Environment = match serde_json::from_str(env_json) {
@@ -91,3 +91,5 @@ extern "C" {
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
 }
+
+// No need to explicitly export memory, WebAssembly does it automatically

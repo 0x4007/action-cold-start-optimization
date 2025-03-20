@@ -267,9 +267,37 @@ Where `WASM_OPT_ARGS` includes:
 
 - [Node.js](https://nodejs.org/) (v20 or later)
 - [Rust](https://www.rust-lang.org/tools/install)
-- [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
 - [Bun](https://bun.sh/) (for optimized build)
-- [wasm-opt](https://github.com/WebAssembly/binaryen) (optional, for additional optimizations)
+
+### Setting Up the WebAssembly Toolchain
+
+1. **Install Rust and Cargo**:
+   ```bash
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   source $HOME/.cargo/env
+   ```
+
+2. **Add the WebAssembly target**:
+   ```bash
+   rustup target add wasm32-unknown-unknown
+   ```
+
+3. **Install wasm-pack**:
+   ```bash
+   cargo install wasm-pack
+   ```
+
+4. **Install wasm-opt (optional, for additional optimizations)**:
+   ```bash
+   # On macOS with Homebrew
+   brew install binaryen
+
+   # On Ubuntu/Debian
+   apt-get install binaryen
+
+   # On Fedora/RHEL
+   dnf install binaryen
+   ```
 
 ### Installation
 
@@ -279,7 +307,7 @@ git clone https://github.com/0x4007/action-cold-start-optimization.git
 cd action-cold-start-optimization
 
 # Install dependencies
-npm install
+bun install
 ```
 
 ### Build Options

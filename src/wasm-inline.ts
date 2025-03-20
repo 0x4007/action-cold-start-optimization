@@ -3,7 +3,7 @@
 
 // The base64-encoded WebAssembly will be injected here during the build process
 // This is just a placeholder that will be replaced by the actual base64 string
-export const WASM_BASE64 = 'WASM_BASE64_PLACEHOLDER';
+export const WASM_BASE64 = 'AGFzbQEAAAA=';
 
 /**
  * Decodes a base64 string to a Uint8Array

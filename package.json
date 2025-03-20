@@ -24,7 +24,7 @@
   "devDependencies": {
     "@types/node": "^20.11.0",
     "bun-types": "latest",
-    "esbuild": "^0.19.11",
+    "esbuild": "^0.25.1",
     "typescript": "latest",
     "wasm-pack": "^0.12.1"
   }
