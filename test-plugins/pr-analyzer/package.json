@@ -1,0 +1,25 @@
+{
+  "name": "pr-analyzer",
+  "version": "1.0.0",
+  "description": "Analyzes pull requests and provides feedback",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo 'No tests yet'"
+  },
+  "keywords": [
+    "github",
+    "action",
+    "plugin",
+    "pull-request",
+    "analyzer"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@your-org/plugin-sdk": "file:../../"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

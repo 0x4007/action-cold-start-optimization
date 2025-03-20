@@ -1,0 +1,22 @@
+{
+  "name": "issue-auto-labeler",
+  "version": "1.0.0",
+  "description": "Automatically labels issues based on content",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "echo 'No build step required for JavaScript plugin'",
+    "test": "echo 'No tests yet'"
+  },
+  "keywords": [
+    "github",
+    "action",
+    "plugin",
+    "issues",
+    "labels"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@your-org/plugin-sdk": "file:../../"
+  }
+}

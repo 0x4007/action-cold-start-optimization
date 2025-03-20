@@ -12,7 +12,10 @@
     "build:optimized": "bun build-optimized.ts",
     "build:sdk": "tsc -p tsconfig.sdk.json",
     "test": "bun test",
-    "create:plugin": "node scripts/create-plugin.js"
+    "create:plugin": "node scripts/create-plugin.js",
+    "create:plugin:interactive": "bun scripts/tools/create-plugin-interactive.ts",
+    "dev:server": "bun scripts/tools/local-dev-server.ts",
+    "generate:action": "node scripts/generate-action.js"
   },
   "keywords": [
     "github",
@@ -25,9 +28,22 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/ejs": "^3.1.5",
+    "@types/express": "^5.0.1",
+    "@types/inquirer": "^9.0.7",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.11.0",
     "bun-types": "latest",
+    "chalk": "^5.4.1",
+    "chokidar": "^4.0.3",
+    "commander": "^13.1.0",
+    "ejs": "^3.1.10",
     "esbuild": "^0.25.1",
+    "express": "^4.21.2",
+    "inquirer": "^12.5.0",
+    "js-yaml": "^4.1.0",
+    "socket.io": "^4.8.1",
+    "ts-node": "^10.9.2",
     "typescript": "latest",
     "wasm-pack": "^0.12.1"
   }
