@@ -6,12 +6,12 @@ export const wasmConfig = {
   operations: {
     parseJSON: true,
     validatePayload: true,
-    computeHash: true
+    computeHash: true,
   },
 
   // Performance monitoring
   monitoring: {
     enabled: true,
-    logPerformance: true
-  }
+    logPerformance: true,
+  },
 };

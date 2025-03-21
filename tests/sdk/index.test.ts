@@ -1,4 +1,12 @@
-import { describe, test, expect, beforeEach, afterEach, mock, spyOn } from "bun:test";
+import {
+  describe,
+  test,
+  expect,
+  beforeEach,
+  afterEach,
+  mock,
+  spyOn,
+} from "bun:test";
 import * as sdk from "../../src/sdk/index.js";
 import * as wasmBridge from "../../src/sdk/wasm-bridge.js";
 import * as contextModule from "../../src/sdk/context.js";
@@ -26,21 +34,29 @@ describe("SDK Entry Point", () => {
     consoleErrorSpy = spyOn(console, "error").mockImplementation(() => {});
 
     // Mock WASM bridge
-    initWasmMock = spyOn(wasmBridge, "initWasm").mockImplementation(async () => {});
+    initWasmMock = spyOn(wasmBridge, "initWasm").mockImplementation(
+      async () => {},
+    );
 
     // Mock context module
     const mockContext = {
       github: {},
       env: {},
       utils: {},
-      log: () => {}
+      log: () => {},
     };
-    createContextMock = spyOn(contextModule, "createContext").mockReturnValue(mockContext as any);
+    createContextMock = spyOn(contextModule, "createContext").mockReturnValue(
+      mockContext as any,
+    );
 
     // Mock events module methods
     eventsOnSpy = spyOn(eventsModule.events, "on").mockImplementation(() => {});
-    eventsOnceSpy = spyOn(eventsModule.events, "once").mockImplementation(() => {});
-    eventsOffSpy = spyOn(eventsModule.events, "off").mockImplementation(() => {});
+    eventsOnceSpy = spyOn(eventsModule.events, "once").mockImplementation(
+      () => {},
+    );
+    eventsOffSpy = spyOn(eventsModule.events, "off").mockImplementation(
+      () => {},
+    );
   });
 
   afterEach(() => {
@@ -59,11 +75,11 @@ describe("SDK Entry Point", () => {
 
   test("should have expected exports", () => {
     // Test that the SDK exports the expected functions
-    expect(typeof sdk.init).toBe('function');
-    expect(typeof sdk.on).toBe('function');
-    expect(typeof sdk.once).toBe('function');
-    expect(typeof sdk.off).toBe('function');
-    expect(typeof sdk.getContext).toBe('function');
+    expect(typeof sdk.init).toBe("function");
+    expect(typeof sdk.on).toBe("function");
+    expect(typeof sdk.once).toBe("function");
+    expect(typeof sdk.off).toBe("function");
+    expect(typeof sdk.getContext).toBe("function");
     expect(sdk.utils).toBeDefined();
   });
 
@@ -125,8 +141,8 @@ describe("SDK Entry Point", () => {
 
   test("sdk.utils should match wasmUtils", () => {
     expect(sdk.utils).toBeDefined();
-    expect(typeof sdk.utils.parseJSON).toBe('function');
-    expect(typeof sdk.utils.validatePayload).toBe('function');
-    expect(typeof sdk.utils.computeHash).toBe('function');
+    expect(typeof sdk.utils.parseJSON).toBe("function");
+    expect(typeof sdk.utils.validatePayload).toBe("function");
+    expect(typeof sdk.utils.computeHash).toBe("function");
   });
 });

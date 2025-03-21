@@ -21,27 +21,27 @@ npm install plugin-sdk
 ### JavaScript Plugin (Tier 1)
 
 ```javascript
-import { init, on, getContext } from 'plugin-sdk';
+import { init, on, getContext } from "plugin-sdk";
 
 // Handle issue.opened event
-on('issue.opened', async (payload) => {
+on("issue.opened", async (payload) => {
   const { github, log } = getContext();
 
-  log('Processing new issue');
+  log("Processing new issue");
 
   // Get issue details
   const issueNumber = payload.issue.number;
   const issueTitle = payload.issue.title;
 
   // Add a comment
-  await github.createComment(issueNumber, 'Thanks for opening this issue!');
+  await github.createComment(issueNumber, "Thanks for opening this issue!");
 
-  log('Issue processing completed');
+  log("Issue processing completed");
 });
 
 // Initialize the SDK
-init().catch(error => {
-  console.error('Plugin initialization failed:', error);
+init().catch((error) => {
+  console.error("Plugin initialization failed:", error);
   process.exit(1);
 });
 ```
@@ -49,44 +49,44 @@ init().catch(error => {
 ### TypeScript Plugin (Tier 2)
 
 ```typescript
-import { init, on, getContext, EventHandler } from 'plugin-sdk';
-import { IssueOpenedPayload } from 'plugin-sdk/types';
+import { init, on, getContext, EventHandler } from "plugin-sdk";
+import { IssueOpenedPayload } from "plugin-sdk/types";
 
 // Configure WebAssembly optimizations
 const wasmConfig = {
   operations: {
     parseJSON: true,
     validatePayload: true,
-    computeHash: true
+    computeHash: true,
   },
   monitoring: {
     enabled: true,
-    logPerformance: true
-  }
+    logPerformance: true,
+  },
 };
 
 // Handle issue.opened event with type safety
 const handleIssueOpened: EventHandler<IssueOpenedPayload> = async (payload) => {
   const { github, utils, log } = getContext();
 
-  log('Processing new issue');
+  log("Processing new issue");
 
   // Get issue details
   const issueNumber = payload.issue.number;
   const issueTitle = payload.issue.title;
 
   // Add a comment
-  await github.createComment(issueNumber, 'Thanks for opening this issue!');
+  await github.createComment(issueNumber, "Thanks for opening this issue!");
 
-  log('Issue processing completed');
+  log("Issue processing completed");
 };
 
 // Register event handler
-on('issue.opened', handleIssueOpened);
+on("issue.opened", handleIssueOpened);
 
 // Initialize the SDK with WebAssembly optimizations
-init({ wasm: wasmConfig }).catch(error => {
-  console.error('Plugin initialization failed:', error);
+init({ wasm: wasmConfig }).catch((error) => {
+  console.error("Plugin initialization failed:", error);
   process.exit(1);
 });
 ```
@@ -108,19 +108,19 @@ pub fn parse_and_validate_json(input: &str) -> Result<JsValue, JsValue> {
 
 ```typescript
 // src/index.ts
-import { init, on } from 'plugin-sdk';
-import * as wasm from '../wasm/pkg';
+import { init, on } from "plugin-sdk";
+import * as wasm from "../wasm/pkg";
 
 // Initialize the SDK with Rust WASM functions
 init({
   wasm: {
     module: wasm,
     functions: {
-      parseJSON: wasm.parse_and_validate_json
-    }
-  }
-}).catch(error => {
-  console.error('Plugin initialization failed:', error);
+      parseJSON: wasm.parse_and_validate_json,
+    },
+  },
+}).catch((error) => {
+  console.error("Plugin initialization failed:", error);
   process.exit(1);
 });
 ```

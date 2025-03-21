@@ -3,8 +3,8 @@
  * Provides access to GitHub API, environment variables, and utility functions
  */
 
-import { getEnvironment, PluginEnvironment } from './environment.js';
-import { wasmUtils } from './wasm-utils.js';
+import { getEnvironment, PluginEnvironment } from "./environment.js";
+import { wasmUtils } from "./wasm-utils.js";
 
 /**
  * GitHub API interface
@@ -33,7 +33,7 @@ export interface PluginContext {
   github: GitHubAPI;
   env: PluginEnvironment;
   utils: PluginUtils;
-  log(message: string, level?: 'info' | 'warn' | 'error'): void;
+  log(message: string, level?: "info" | "warn" | "error"): void;
 }
 
 // Using the WASM utilities from wasm-utils.ts
@@ -45,10 +45,10 @@ export function createContext(): PluginContext {
   const env = getEnvironment();
 
   // Extract repository information from the event payload
-  const eventPayload = JSON.parse(env.eventPayload || '{}');
+  const eventPayload = JSON.parse(env.eventPayload || "{}");
   const repo = {
-    owner: eventPayload.repository?.owner?.login || '',
-    repo: eventPayload.repository?.name || '',
+    owner: eventPayload.repository?.owner?.login || "",
+    repo: eventPayload.repository?.name || "",
   };
 
   // Create GitHub API client (simplified for now)
@@ -62,7 +62,7 @@ export function createContext(): PluginContext {
       // Simplified implementation
       console.log(`Creating issue: ${title}`);
       return 1; // Return a dummy issue number
-    }
+    },
   };
 
   // Create context object
@@ -70,9 +70,9 @@ export function createContext(): PluginContext {
     github,
     env,
     utils: wasmUtils,
-    log(message, level = 'info') {
+    log(message, level = "info") {
       const timestamp = new Date().toISOString();
       console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
-    }
+    },
   };
 }

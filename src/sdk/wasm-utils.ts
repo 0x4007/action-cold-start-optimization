@@ -3,7 +3,7 @@
  * Leverages WASM for performance-critical operations
  */
 
-import { getWasmExports, isWasmInitialized } from './wasm-bridge.js';
+import { getWasmExports, isWasmInitialized } from "./wasm-bridge.js";
 
 /**
  * Utility functions that leverage WASM for performance
@@ -22,7 +22,10 @@ export const wasmUtils = {
           return JSON.parse(result) as T;
         } catch (wasmError) {
           // Fall back to native implementation
-          console.warn("WASM parse_json failed, using native implementation:", wasmError);
+          console.warn(
+            "WASM parse_json failed, using native implementation:",
+            wasmError,
+          );
           return JSON.parse(json) as T;
         }
       } else {
@@ -49,7 +52,10 @@ export const wasmUtils = {
           return result === 1;
         } catch (wasmError) {
           // Fall back to native implementation
-          console.warn("WASM validate_payload failed, using native implementation:", wasmError);
+          console.warn(
+            "WASM validate_payload failed, using native implementation:",
+            wasmError,
+          );
           // Simple validation logic as fallback
           return true; // Replace with actual validation logic
         }
@@ -74,11 +80,14 @@ export const wasmUtils = {
           return exports.compute_hash(data);
         } catch (wasmError) {
           // Fall back to native implementation
-          console.warn("WASM compute_hash failed, using native implementation:", wasmError);
+          console.warn(
+            "WASM compute_hash failed, using native implementation:",
+            wasmError,
+          );
           // Simple hash function as fallback
           let hash = 0;
           for (let i = 0; i < data.length; i++) {
-            hash = ((hash << 5) - hash) + data.charCodeAt(i);
+            hash = (hash << 5) - hash + data.charCodeAt(i);
             hash |= 0; // Convert to 32bit integer
           }
           return hash.toString(16);
@@ -87,7 +96,7 @@ export const wasmUtils = {
         // WASM not initialized, use native implementation
         let hash = 0;
         for (let i = 0; i < data.length; i++) {
-          hash = ((hash << 5) - hash) + data.charCodeAt(i);
+          hash = (hash << 5) - hash + data.charCodeAt(i);
           hash |= 0; // Convert to 32bit integer
         }
         return hash.toString(16);
@@ -95,5 +104,5 @@ export const wasmUtils = {
     } catch (error) {
       throw new Error(`Failed to compute hash: ${error}`);
     }
-  }
+  },
 };

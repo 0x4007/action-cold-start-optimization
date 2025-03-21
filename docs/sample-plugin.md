@@ -23,26 +23,27 @@ my-issue-labeler/
 ```javascript
 // plugin.config.js
 module.exports = {
-  name: 'Issue Auto-Labeler',
-  description: 'Automatically labels issues based on content',
-  author: 'Your Name',
+  name: "Issue Auto-Labeler",
+  description: "Automatically labels issues based on content",
+  author: "Your Name",
 
   action: {
-    icon: 'tag',
-    color: 'green',
+    icon: "tag",
+    color: "green",
     inputs: {
       labelMapping: {
-        description: 'JSON mapping of keywords to labels',
+        description: "JSON mapping of keywords to labels",
         required: false,
-        default: '{"bug":["error","exception","fail"],"enhancement":["improve","enhancement","feature"]}'
-      }
-    }
+        default:
+          '{"bug":["error","exception","fail"],"enhancement":["improve","enhancement","feature"]}',
+      },
+    },
   },
 
   // Event handlers
   events: {
-    'issues.opened': './src/handlers/issue-opened.js'
-  }
+    "issues.opened": "./src/handlers/issue-opened.js",
+  },
 };
 ```
 
@@ -50,7 +51,7 @@ module.exports = {
 
 ```javascript
 // src/handlers/issue-opened.js
-const { getContext } = require('@your-org/plugin-sdk');
+const { getContext } = require("@your-org/plugin-sdk");
 
 /**
  * Handler for issue.opened event
@@ -59,15 +60,15 @@ const { getContext } = require('@your-org/plugin-sdk');
 module.exports = async function handleIssueOpened(payload) {
   const { github, utils, log } = getContext();
 
-  log('Processing new issue');
+  log("Processing new issue");
 
   // Get the issue details
   const issueNumber = payload.issue.number;
   const issueTitle = payload.issue.title;
-  const issueBody = payload.issue.body || '';
+  const issueBody = payload.issue.body || "";
 
   // Get label mapping from inputs
-  const labelMappingJson = process.env.INPUT_LABELMAPPING || '{}';
+  const labelMappingJson = process.env.INPUT_LABELMAPPING || "{}";
   const labelMapping = utils.parseJSON(labelMappingJson);
 
   // Determine which labels to apply
@@ -78,31 +79,31 @@ module.exports = async function handleIssueOpened(payload) {
     const content = `${issueTitle} ${issueBody}`.toLowerCase();
 
     // If any keyword is found in the content, add the label
-    if (keywords.some(keyword => content.includes(keyword.toLowerCase()))) {
+    if (keywords.some((keyword) => content.includes(keyword.toLowerCase()))) {
       labelsToApply.push(label);
     }
   }
 
   // Apply labels if any were found
   if (labelsToApply.length > 0) {
-    log(`Adding labels: ${labelsToApply.join(', ')}`);
+    log(`Adding labels: ${labelsToApply.join(", ")}`);
 
     await github.octokit.issues.addLabels({
       ...github.repo,
       issue_number: issueNumber,
-      labels: labelsToApply
+      labels: labelsToApply,
     });
 
     // Add a comment to the issue
     await github.createComment(
       issueNumber,
-      `I've automatically added the following labels: ${labelsToApply.join(', ')}`
+      `I've automatically added the following labels: ${labelsToApply.join(", ")}`,
     );
   } else {
-    log('No matching labels found');
+    log("No matching labels found");
   }
 
-  log('Issue processing completed');
+  log("Issue processing completed");
 };
 ```
 
@@ -110,8 +111,8 @@ module.exports = async function handleIssueOpened(payload) {
 
 ```javascript
 // src/index.js
-const { init, on } = require('@your-org/plugin-sdk');
-const handleIssueOpened = require('./handlers/issue-opened');
+const { init, on } = require("@your-org/plugin-sdk");
+const handleIssueOpened = require("./handlers/issue-opened");
 
 // Initialize the SDK
 async function main() {
@@ -119,14 +120,14 @@ async function main() {
   await init();
 
   // Register event handlers
-  on('issues.opened', handleIssueOpened);
+  on("issues.opened", handleIssueOpened);
 
-  console.log('Issue Auto-Labeler plugin initialized');
+  console.log("Issue Auto-Labeler plugin initialized");
 }
 
 // Start the plugin
-main().catch(error => {
-  console.error('Plugin initialization failed:', error);
+main().catch((error) => {
+  console.error("Plugin initialization failed:", error);
   process.exit(1);
 });
 ```
@@ -155,33 +156,34 @@ my-issue-labeler/
 ```typescript
 // plugin.config.ts
 export default {
-  name: 'Issue Auto-Labeler',
-  description: 'Automatically labels issues based on content',
-  author: 'Your Name',
+  name: "Issue Auto-Labeler",
+  description: "Automatically labels issues based on content",
+  author: "Your Name",
 
   action: {
-    icon: 'tag',
-    color: 'green',
+    icon: "tag",
+    color: "green",
     inputs: {
       labelMapping: {
-        description: 'JSON mapping of keywords to labels',
+        description: "JSON mapping of keywords to labels",
         required: false,
-        default: '{"bug":["error","exception","fail"],"enhancement":["improve","enhancement","feature"]}'
-      }
-    }
+        default:
+          '{"bug":["error","exception","fail"],"enhancement":["improve","enhancement","feature"]}',
+      },
+    },
   },
 
   // Performance optimization settings
   optimization: {
     useWasm: true,
-    wasmFunctions: ['parseJSON', 'computeHash'],
-    lazyLoad: ['@octokit/rest']
+    wasmFunctions: ["parseJSON", "computeHash"],
+    lazyLoad: ["@octokit/rest"],
   },
 
   // Event handlers
   events: {
-    'issues.opened': './src/handlers/issue-opened.ts'
-  }
+    "issues.opened": "./src/handlers/issue-opened.ts",
+  },
 };
 ```
 
@@ -189,7 +191,7 @@ export default {
 
 ```typescript
 // src/types.ts
-import { EventPayload } from '@your-org/plugin-sdk';
+import { EventPayload } from "@your-org/plugin-sdk";
 
 export interface IssueOpenedPayload extends EventPayload {
   issue: {
@@ -222,14 +224,14 @@ export const wasmConfig = {
   operations: {
     parseJSON: true,
     validatePayload: true,
-    computeHash: true
+    computeHash: true,
   },
 
   // Performance monitoring
   monitoring: {
     enabled: true,
-    logPerformance: true
-  }
+    logPerformance: true,
+  },
 };
 ```
 
@@ -237,8 +239,8 @@ export const wasmConfig = {
 
 ```typescript
 // src/handlers/issue-opened.ts
-import { getContext, EventHandler } from '@your-org/plugin-sdk';
-import { IssueOpenedPayload, LabelMapping } from '../types';
+import { getContext, EventHandler } from "@your-org/plugin-sdk";
+import { IssueOpenedPayload, LabelMapping } from "../types";
 
 /**
  * Handler for issue.opened event
@@ -247,15 +249,15 @@ import { IssueOpenedPayload, LabelMapping } from '../types';
 const handleIssueOpened: EventHandler<IssueOpenedPayload> = async (payload) => {
   const { github, utils, log } = getContext();
 
-  log('Processing new issue');
+  log("Processing new issue");
 
   // Get the issue details
   const issueNumber = payload.issue.number;
   const issueTitle = payload.issue.title;
-  const issueBody = payload.issue.body || '';
+  const issueBody = payload.issue.body || "";
 
   // Get label mapping from inputs
-  const labelMappingJson = process.env.INPUT_LABELMAPPING || '{}';
+  const labelMappingJson = process.env.INPUT_LABELMAPPING || "{}";
   const labelMapping = utils.parseJSON<LabelMapping>(labelMappingJson);
 
   // Determine which labels to apply
@@ -266,31 +268,31 @@ const handleIssueOpened: EventHandler<IssueOpenedPayload> = async (payload) => {
     const content = `${issueTitle} ${issueBody}`.toLowerCase();
 
     // If any keyword is found in the content, add the label
-    if (keywords.some(keyword => content.includes(keyword.toLowerCase()))) {
+    if (keywords.some((keyword) => content.includes(keyword.toLowerCase()))) {
       labelsToApply.push(label);
     }
   }
 
   // Apply labels if any were found
   if (labelsToApply.length > 0) {
-    log(`Adding labels: ${labelsToApply.join(', ')}`);
+    log(`Adding labels: ${labelsToApply.join(", ")}`);
 
     await github.octokit.issues.addLabels({
       ...github.repo,
       issue_number: issueNumber,
-      labels: labelsToApply
+      labels: labelsToApply,
     });
 
     // Add a comment to the issue
     await github.createComment(
       issueNumber,
-      `I've automatically added the following labels: ${labelsToApply.join(', ')}`
+      `I've automatically added the following labels: ${labelsToApply.join(", ")}`,
     );
   } else {
-    log('No matching labels found');
+    log("No matching labels found");
   }
 
-  log('Issue processing completed');
+  log("Issue processing completed");
 };
 
 export default handleIssueOpened;
@@ -300,9 +302,9 @@ export default handleIssueOpened;
 
 ```typescript
 // src/index.ts
-import { init, on } from '@your-org/plugin-sdk';
-import { wasmConfig } from './wasm-config';
-import handleIssueOpened from './handlers/issue-opened';
+import { init, on } from "@your-org/plugin-sdk";
+import { wasmConfig } from "./wasm-config";
+import handleIssueOpened from "./handlers/issue-opened";
 
 // Initialize the SDK
 async function main() {
@@ -310,14 +312,14 @@ async function main() {
   await init({ wasm: wasmConfig });
 
   // Register event handlers
-  on('issues.opened', handleIssueOpened);
+  on("issues.opened", handleIssueOpened);
 
-  console.log('Issue Auto-Labeler plugin initialized');
+  console.log("Issue Auto-Labeler plugin initialized");
 }
 
 // Start the plugin
-main().catch(error => {
-  console.error('Plugin initialization failed:', error);
+main().catch((error) => {
+  console.error("Plugin initialization failed:", error);
   process.exit(1);
 });
 ```
@@ -422,11 +424,11 @@ pub use label_matcher::match_labels;
 
 ```typescript
 // src/handlers/issue-opened.ts
-import { getContext, EventHandler } from '@your-org/plugin-sdk';
-import { IssueOpenedPayload, LabelMapping } from '../types';
+import { getContext, EventHandler } from "@your-org/plugin-sdk";
+import { IssueOpenedPayload, LabelMapping } from "../types";
 
 // Import the custom WASM function
-import { match_labels } from '../../wasm/pkg/issue_labeler';
+import { match_labels } from "../../wasm/pkg/issue_labeler";
 
 /**
  * Handler for issue.opened event
@@ -435,20 +437,20 @@ import { match_labels } from '../../wasm/pkg/issue_labeler';
 const handleIssueOpened: EventHandler<IssueOpenedPayload> = async (payload) => {
   const { github, utils, log } = getContext();
 
-  log('Processing new issue');
+  log("Processing new issue");
 
   // Get the issue details
   const issueNumber = payload.issue.number;
   const issueTitle = payload.issue.title;
-  const issueBody = payload.issue.body || '';
+  const issueBody = payload.issue.body || "";
 
   // Get label mapping from inputs
-  const labelMappingJson = process.env.INPUT_LABELMAPPING || '{}';
+  const labelMappingJson = process.env.INPUT_LABELMAPPING || "{}";
 
   // Use the Rust implementation for label matching
   const contentJson = JSON.stringify({
     title: issueTitle,
-    body: issueBody
+    body: issueBody,
   });
 
   // Call the WASM function directly
@@ -457,24 +459,24 @@ const handleIssueOpened: EventHandler<IssueOpenedPayload> = async (payload) => {
 
   // Apply labels if any were found
   if (labelsToApply.length > 0) {
-    log(`Adding labels: ${labelsToApply.join(', ')}`);
+    log(`Adding labels: ${labelsToApply.join(", ")}`);
 
     await github.octokit.issues.addLabels({
       ...github.repo,
       issue_number: issueNumber,
-      labels: labelsToApply
+      labels: labelsToApply,
     });
 
     // Add a comment to the issue
     await github.createComment(
       issueNumber,
-      `I've automatically added the following labels: ${labelsToApply.join(', ')}`
+      `I've automatically added the following labels: ${labelsToApply.join(", ")}`,
     );
   } else {
-    log('No matching labels found');
+    log("No matching labels found");
   }
 
-  log('Issue processing completed');
+  log("Issue processing completed");
 };
 
 export default handleIssueOpened;
@@ -484,20 +486,20 @@ export default handleIssueOpened;
 
 Here's a comparison of the three approaches for processing a typical issue:
 
-| Approach | Cold Start Time | Processing Time | Memory Usage |
-|----------|----------------|-----------------|--------------|
-| Tier 1 (JS Only) | ~400ms | ~120ms | ~40MB |
-| Tier 2 (TS+WASM) | ~350ms | ~80ms | ~35MB |
-| Tier 3 (Full Rust) | ~300ms | ~30ms | ~30MB |
+| Approach           | Cold Start Time | Processing Time | Memory Usage |
+| ------------------ | --------------- | --------------- | ------------ |
+| Tier 1 (JS Only)   | ~400ms          | ~120ms          | ~40MB        |
+| Tier 2 (TS+WASM)   | ~350ms          | ~80ms           | ~35MB        |
+| Tier 3 (Full Rust) | ~300ms          | ~30ms           | ~30MB        |
 
 The Tier 3 approach with custom Rust implementation provides the best performance, especially for processing time, which is critical for responsive GitHub Actions.
 
 ## Developer Experience Comparison
 
-| Approach | Learning Curve | Development Speed | Debugging Ease |
-|----------|---------------|-------------------|----------------|
-| Tier 1 (JS Only) | Low | Fast | Easy |
-| Tier 2 (TS+WASM) | Medium | Medium | Medium |
-| Tier 3 (Full Rust) | High | Slow | Challenging |
+| Approach           | Learning Curve | Development Speed | Debugging Ease |
+| ------------------ | -------------- | ----------------- | -------------- |
+| Tier 1 (JS Only)   | Low            | Fast              | Easy           |
+| Tier 2 (TS+WASM)   | Medium         | Medium            | Medium         |
+| Tier 3 (Full Rust) | High           | Slow              | Challenging    |
 
 Developers can choose the approach that best fits their skills and requirements. The tiered model allows for progressive enhancement as developers become more comfortable with the system.

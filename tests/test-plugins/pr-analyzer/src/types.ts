@@ -1,4 +1,4 @@
-import { EventPayload } from '@your-org/plugin-sdk';
+import { EventPayload } from "@your-org/plugin-sdk";
 
 export interface PullRequestOpenedPayload extends EventPayload {
   pull_request: {
@@ -52,7 +52,7 @@ export interface SizeThresholds {
 }
 
 export interface PullRequestAnalysis {
-  size: 'small' | 'medium' | 'large' | 'xlarge';
+  size: "small" | "medium" | "large" | "xlarge";
   hasTests: boolean;
   hasDocumentation: boolean;
   suggestions: string[];

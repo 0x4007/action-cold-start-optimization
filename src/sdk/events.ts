@@ -3,13 +3,13 @@
  * Provides a simple way to register handlers for GitHub webhook events
  */
 
-import { PluginContext } from './context.js';
+import { PluginContext } from "./context.js";
 
 export type EventPayload = Record<string, any>;
 
 export type EventHandler<T extends EventPayload = EventPayload> = (
   payload: T,
-  context: PluginContext
+  context: PluginContext,
 ) => Promise<void> | void;
 
 export interface EventRegistry {
@@ -68,11 +68,17 @@ class EventManager implements EventRegistry {
   /**
    * Trigger all handlers for the specified event
    */
-  async trigger(event: string, payload: EventPayload, context: PluginContext): Promise<void> {
+  async trigger(
+    event: string,
+    payload: EventPayload,
+    context: PluginContext,
+  ): Promise<void> {
     const handlers = this.handlers.get(event);
     if (!handlers) return;
 
-    const promises = Array.from(handlers).map(handler => handler(payload, context));
+    const promises = Array.from(handlers).map((handler) =>
+      handler(payload, context),
+    );
     await Promise.all(promises);
   }
 }

@@ -1,4 +1,12 @@
-import { describe, test, expect, beforeEach, afterEach, mock, spyOn } from "bun:test";
+import {
+  describe,
+  test,
+  expect,
+  beforeEach,
+  afterEach,
+  mock,
+  spyOn,
+} from "bun:test";
 import { events, EventHandler, EventPayload } from "../../src/sdk/events.js";
 
 describe("Event System", () => {
@@ -7,14 +15,19 @@ describe("Event System", () => {
     github: {},
     env: {},
     utils: {},
-    log: () => {}
+    log: () => {},
   };
 
   // Reset event handlers before each test
   beforeEach(() => {
     // Since events is a singleton, we need to clear any handlers from previous tests
-    const eventNames = ["test.event", "another.event", "once.event", "async.event"];
-    eventNames.forEach(eventName => {
+    const eventNames = [
+      "test.event",
+      "another.event",
+      "once.event",
+      "async.event",
+    ];
+    eventNames.forEach((eventName) => {
       events.off(eventName);
     });
   });
@@ -22,7 +35,9 @@ describe("Event System", () => {
   test("should register and trigger event handler with on()", async () => {
     // Arrange
     let handlerCalled = false;
-    const handlerFn = () => { handlerCalled = true; };
+    const handlerFn = () => {
+      handlerCalled = true;
+    };
     const event = "test.event";
     const payload: EventPayload = { id: 123 };
 
@@ -38,8 +53,12 @@ describe("Event System", () => {
     // Arrange
     let handler1Called = false;
     let handler2Called = false;
-    const handler1 = () => { handler1Called = true; };
-    const handler2 = () => { handler2Called = true; };
+    const handler1 = () => {
+      handler1Called = true;
+    };
+    const handler2 = () => {
+      handler2Called = true;
+    };
     const event = "test.event";
     const payload: EventPayload = { id: 456 };
 
@@ -57,8 +76,12 @@ describe("Event System", () => {
     // Arrange
     let handler1Called = false;
     let handler2Called = false;
-    const handler1 = () => { handler1Called = true; };
-    const handler2 = () => { handler2Called = true; };
+    const handler1 = () => {
+      handler1Called = true;
+    };
+    const handler2 = () => {
+      handler2Called = true;
+    };
     const event = "test.event";
     const payload: EventPayload = { id: 789 };
 
@@ -77,8 +100,12 @@ describe("Event System", () => {
     // Arrange
     let handler1Called = false;
     let handler2Called = false;
-    const handler1 = () => { handler1Called = true; };
-    const handler2 = () => { handler2Called = true; };
+    const handler1 = () => {
+      handler1Called = true;
+    };
+    const handler2 = () => {
+      handler2Called = true;
+    };
     const event = "test.event";
     const payload: EventPayload = { id: 999 };
 
@@ -96,7 +123,9 @@ describe("Event System", () => {
   test("should call handler only once with once()", async () => {
     // Arrange
     let callCount = 0;
-    const handler = () => { callCount++; };
+    const handler = () => {
+      callCount++;
+    };
     const event = "once.event";
     const payload: EventPayload = { id: 111 };
 
@@ -117,7 +146,7 @@ describe("Event System", () => {
     // Arrange
     let completed = false;
     const asyncHandler: EventHandler = async () => {
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
       completed = true;
     };
     const event = "async.event";
@@ -134,8 +163,12 @@ describe("Event System", () => {
     // Arrange
     let handler1Called = false;
     let handler2Called = false;
-    const handler1 = () => { handler1Called = true; };
-    const handler2 = () => { handler2Called = true; };
+    const handler1 = () => {
+      handler1Called = true;
+    };
+    const handler2 = () => {
+      handler2Called = true;
+    };
     const event1 = "test.event";
     const event2 = "another.event";
     const payload: EventPayload = { id: 222 };

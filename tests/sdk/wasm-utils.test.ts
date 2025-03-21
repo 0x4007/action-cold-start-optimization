@@ -1,4 +1,12 @@
-import { describe, test, expect, beforeEach, afterEach, mock, spyOn } from "bun:test";
+import {
+  describe,
+  test,
+  expect,
+  beforeEach,
+  afterEach,
+  mock,
+  spyOn,
+} from "bun:test";
 import { wasmUtils } from "../../src/sdk/wasm-utils.js";
 import * as wasmBridge from "../../src/sdk/wasm-bridge.js";
 
@@ -8,10 +16,12 @@ describe("WASM Utilities", () => {
 
   // Mock WASM exports
   const mockWasmExports = {
-    process_event: mock((envJson: string) => JSON.stringify({ processed: true })),
+    process_event: mock((envJson: string) =>
+      JSON.stringify({ processed: true }),
+    ),
     parse_json: mock((json: string) => json),
     validate_payload: mock((schema: string, payload: string) => 1),
-    compute_hash: mock((data: string) => "wasm-hash-result")
+    compute_hash: mock((data: string) => "wasm-hash-result"),
   };
 
   beforeEach(() => {
@@ -76,7 +86,7 @@ describe("WASM Utilities", () => {
       expect(mockWasmExports.parse_json).toHaveBeenCalledWith(json);
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         "WASM parse_json failed, using native implementation:",
-        expect.any(Error)
+        expect.any(Error),
       );
       expect(result).toEqual({ test: "data" });
     });
@@ -87,7 +97,9 @@ describe("WASM Utilities", () => {
       (wasmBridge.isWasmInitialized as any).mockReturnValue(false);
 
       // Act & Assert
-      expect(() => wasmUtils.parseJSON(invalidJson)).toThrow("Failed to parse JSON");
+      expect(() => wasmUtils.parseJSON(invalidJson)).toThrow(
+        "Failed to parse JSON",
+      );
     });
   });
 
@@ -106,7 +118,7 @@ describe("WASM Utilities", () => {
       expect(wasmBridge.getWasmExports).toHaveBeenCalled();
       expect(mockWasmExports.validate_payload).toHaveBeenCalledWith(
         JSON.stringify(schema),
-        JSON.stringify(payload)
+        JSON.stringify(payload),
       );
       expect(result).toBe(true);
     });
@@ -141,11 +153,11 @@ describe("WASM Utilities", () => {
       expect(wasmBridge.getWasmExports).toHaveBeenCalled();
       expect(mockWasmExports.validate_payload).toHaveBeenCalledWith(
         JSON.stringify(schema),
-        JSON.stringify(payload)
+        JSON.stringify(payload),
       );
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         "WASM validate_payload failed, using native implementation:",
-        expect.any(Error)
+        expect.any(Error),
       );
       // Native implementation returns true
       expect(result).toBe(true);
@@ -199,7 +211,7 @@ describe("WASM Utilities", () => {
       expect(mockWasmExports.compute_hash).toHaveBeenCalledWith(data);
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         "WASM compute_hash failed, using native implementation:",
-        expect.any(Error)
+        expect.any(Error),
       );
       // Native implementation returns a hash string
       expect(typeof result).toBe("string");

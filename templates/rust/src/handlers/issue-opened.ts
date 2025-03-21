@@ -3,12 +3,12 @@
  * This is a Full Stack with Rust implementation (Tier 3)
  */
 
-import { getContext, EventHandler } from 'plugin-sdk';
-import { IssueOpenedPayload, IssueContent } from '../types.js';
+import { getContext, EventHandler } from "plugin-sdk";
+import { IssueOpenedPayload, IssueContent } from "../types.js";
 
 // Import the custom WASM function
 // This would be generated from the Rust code
-import { match_labels } from '../../wasm/pkg/issue_labeler.js';
+import { match_labels } from "../../wasm/pkg/issue_labeler.js";
 
 /**
  * Handler for issue.opened event
@@ -17,20 +17,20 @@ import { match_labels } from '../../wasm/pkg/issue_labeler.js';
 const handleIssueOpened: EventHandler<IssueOpenedPayload> = async (payload) => {
   const { github, utils, log } = getContext();
 
-  log('Processing new issue');
+  log("Processing new issue");
 
   // Get the issue details
   const issueNumber = payload.issue.number;
   const issueTitle = payload.issue.title;
-  const issueBody = payload.issue.body || '';
+  const issueBody = payload.issue.body || "";
 
   // Get label mapping from inputs
-  const labelMappingJson = process.env.INPUT_LABELMAPPING || '{}';
+  const labelMappingJson = process.env.INPUT_LABELMAPPING || "{}";
 
   // Use the Rust implementation for label matching
   const contentJson = JSON.stringify({
     title: issueTitle,
-    body: issueBody
+    body: issueBody,
   } as IssueContent);
 
   // Call the WASM function directly
@@ -39,25 +39,25 @@ const handleIssueOpened: EventHandler<IssueOpenedPayload> = async (payload) => {
 
   // Apply labels if any were found
   if (labelsToApply.length > 0) {
-    log(`Adding labels: ${labelsToApply.join(', ')}`);
+    log(`Adding labels: ${labelsToApply.join(", ")}`);
 
     // Add labels to the issue
     await github.octokit.issues.addLabels({
       ...github.repo,
       issue_number: issueNumber,
-      labels: labelsToApply
+      labels: labelsToApply,
     });
 
     // Add a comment to the issue
     await github.createComment(
       issueNumber,
-      `I've automatically added the following labels: ${labelsToApply.join(', ')}`
+      `I've automatically added the following labels: ${labelsToApply.join(", ")}`,
     );
   } else {
-    log('No matching labels found');
+    log("No matching labels found");
   }
 
-  log('Issue processing completed');
+  log("Issue processing completed");
 };
 
 export default handleIssueOpened;

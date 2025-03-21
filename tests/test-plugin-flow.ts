@@ -11,19 +11,19 @@
  * Usage: bun run test-plugin-flow.ts
  */
 
-import { spawn, ChildProcess, execSync } from 'child_process';
-import { fileURLToPath } from 'url';
-import path from 'path';
-import fs from 'fs';
-import http from 'http';
-import puppeteer, { Browser, Page } from 'puppeteer';
+import { spawn, ChildProcess, execSync } from "child_process";
+import { fileURLToPath } from "url";
+import path from "path";
+import fs from "fs";
+import http from "http";
+import puppeteer, { Browser, Page } from "puppeteer";
 
 // Get the directory name of the current module
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Configuration
-const PLUGIN_NAME = 'test-plugin-flow-' + Date.now();
-const PLUGIN_DIR = path.join(process.cwd(), 'plugins', PLUGIN_NAME);
+const PLUGIN_NAME = "test-plugin-flow-" + Date.now();
+const PLUGIN_DIR = path.join(process.cwd(), "plugins", PLUGIN_NAME);
 const SERVER_PORT = 3000 + Math.floor(Math.random() * 1000); // Use a random port to avoid conflicts
 const SERVER_URL = `http://localhost:${SERVER_PORT}`;
 
@@ -39,19 +39,23 @@ function cleanup() {
 }
 
 // Handle process termination
-process.on('SIGINT', () => {
-  console.log('\nProcess interrupted. Cleaning up...');
+process.on("SIGINT", () => {
+  console.log("\nProcess interrupted. Cleaning up...");
   cleanup();
   process.exit(0);
 });
 
 // Helper function to wait for a specified time
 function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // Helper function to wait for a server to be ready
-async function waitForServer(url: string, maxRetries = 10, retryInterval = 1000): Promise<boolean> {
+async function waitForServer(
+  url: string,
+  maxRetries = 10,
+  retryInterval = 1000,
+): Promise<boolean> {
   for (let i = 0; i < maxRetries; i++) {
     try {
       const response = await fetch(url);
@@ -82,7 +86,7 @@ async function createPlugin(): Promise<boolean> {
     const createPluginCmd = `bun run scripts/tools/create-plugin-interactive.ts -- --non-interactive --name ${PLUGIN_NAME} --template ts --features issues,pr,external --destination ${PLUGIN_NAME} --icon rocket --color blue`;
 
     console.log(`Executing: ${createPluginCmd}`);
-    execSync(createPluginCmd, { stdio: 'inherit' });
+    execSync(createPluginCmd, { stdio: "inherit" });
 
     // Verify the plugin was created successfully
     if (!fs.existsSync(PLUGIN_DIR)) {
@@ -105,16 +109,16 @@ async function isPortInUse(port: number): Promise<boolean> {
     const testServer = http.createServer();
 
     return new Promise((resolve) => {
-      testServer.once('error', (err: any) => {
+      testServer.once("error", (err: any) => {
         // If we get an EADDRINUSE error, the port is in use
-        if (err.code === 'EADDRINUSE') {
+        if (err.code === "EADDRINUSE") {
           resolve(true);
         } else {
           resolve(false);
         }
       });
 
-      testServer.once('listening', () => {
+      testServer.once("listening", () => {
         // If we can listen, the port is free
         testServer.close(() => {
           resolve(false);
@@ -137,7 +141,9 @@ async function startDevServer(): Promise<ChildProcess | null> {
     // Check if the port is already in use
     const portInUse = await isPortInUse(SERVER_PORT);
     if (portInUse) {
-      console.error(`Port ${SERVER_PORT} is already in use. Please choose a different port.`);
+      console.error(
+        `Port ${SERVER_PORT} is already in use. Please choose a different port.`,
+      );
       return null;
     }
 
@@ -145,22 +151,28 @@ async function startDevServer(): Promise<ChildProcess | null> {
     const serverCmd = `bun run scripts/tools/local-dev-server.ts --plugin-dir ${PLUGIN_NAME} --port ${SERVER_PORT}`;
     console.log(`Executing: ${serverCmd}`);
 
-    const serverProcess = spawn('bun', [
-      'run',
-      'scripts/tools/local-dev-server.ts',
-      '--plugin-dir', PLUGIN_NAME,
-      '--port', SERVER_PORT.toString()
-    ], {
-      stdio: ['inherit', 'pipe', 'pipe'],
-      shell: true
-    });
+    const serverProcess = spawn(
+      "bun",
+      [
+        "run",
+        "scripts/tools/local-dev-server.ts",
+        "--plugin-dir",
+        PLUGIN_NAME,
+        "--port",
+        SERVER_PORT.toString(),
+      ],
+      {
+        stdio: ["inherit", "pipe", "pipe"],
+        shell: true,
+      },
+    );
 
     // Handle server output
-    serverProcess.stdout?.on('data', (data) => {
+    serverProcess.stdout?.on("data", (data) => {
       console.log(`[Server] ${data.toString().trim()}`);
     });
 
-    serverProcess.stderr?.on('data', (data) => {
+    serverProcess.stderr?.on("data", (data) => {
       console.error(`[Server Error] ${data.toString().trim()}`);
     });
 
@@ -193,7 +205,7 @@ async function testUI(): Promise<boolean> {
     console.log(`Launching browser...`);
     browser = await puppeteer.launch({
       headless: false, // Set to true for headless mode
-      args: ['--window-size=1280,800']
+      args: ["--window-size=1280,800"],
     });
 
     // Open a new page
@@ -202,43 +214,46 @@ async function testUI(): Promise<boolean> {
 
     // Navigate to the server URL
     console.log(`Navigating to ${SERVER_URL}...`);
-    await page.goto(SERVER_URL, { waitUntil: 'networkidle2' });
+    await page.goto(SERVER_URL, { waitUntil: "networkidle2" });
 
     // Wait for the page to load
-    await page.waitForSelector('#plugin-name', { visible: true });
+    await page.waitForSelector("#plugin-name", { visible: true });
 
     // Get the plugin name from the UI
-    const pluginName = await page.$eval('#plugin-name', el => el.textContent);
+    const pluginName = await page.$eval("#plugin-name", (el) => el.textContent);
     console.log(`Plugin name displayed in UI: ${pluginName}`);
 
     // Take a screenshot of the initial state
-    await page.screenshot({ path: 'screenshots/test-plugin-initial.png' });
+    await page.screenshot({ path: "screenshots/test-plugin-initial.png" });
     console.log(`Screenshot saved as test-plugin-initial.png`);
 
     // Test 1: Start the plugin
     console.log(`\nTest 1: Starting the plugin...`);
-    await page.click('#start-button');
+    await page.click("#start-button");
 
     // Wait for plugin to initialize
     await sleep(3000);
 
     // Take a screenshot after starting the plugin
-    await page.screenshot({ path: 'screenshots/test-plugin-started.png' });
+    await page.screenshot({ path: "screenshots/test-plugin-started.png" });
     console.log(`Screenshot saved as test-plugin-started.png`);
 
     // Check the status element for verification
-    const statusText = await page.$eval('#status-text', el => el.textContent);
+    const statusText = await page.$eval("#status-text", (el) => el.textContent);
     console.log(`Plugin status after start: ${statusText}`);
 
     // Get metadata if available
     try {
-      const metadataSection = await page.$('#plugin-metadata');
+      const metadataSection = await page.$("#plugin-metadata");
       if (metadataSection) {
-        const metadataText = await page.$eval('#plugin-metadata', (el: Element) => el.textContent || '');
+        const metadataText = await page.$eval(
+          "#plugin-metadata",
+          (el: Element) => el.textContent || "",
+        );
         console.log(`Plugin metadata:\n${metadataText}`);
       }
     } catch (error) {
-      console.log('Metadata section not found or not populated yet');
+      console.log("Metadata section not found or not populated yet");
     }
 
     // Test 2: Trigger an issue.opened event
@@ -250,18 +265,22 @@ async function testUI(): Promise<boolean> {
     await sleep(500);
 
     // Take a screenshot of the events tab
-    await page.screenshot({ path: 'screenshots/test-plugin-events-tab.png' });
+    await page.screenshot({ path: "screenshots/test-plugin-events-tab.png" });
     console.log(`Screenshot saved as test-plugin-events-tab.png`);
 
     // Click the issue.opened event button
-    const issueOpenedButton = await page.$('.event-button[data-event="issue.opened"]');
+    const issueOpenedButton = await page.$(
+      '.event-button[data-event="issue.opened"]',
+    );
     if (issueOpenedButton) await issueOpenedButton.click();
 
     // Wait for the logs tab to become active
     await sleep(1000);
 
     // Take a screenshot after triggering the event
-    await page.screenshot({ path: 'screenshots/test-plugin-event-triggered.png' });
+    await page.screenshot({
+      path: "screenshots/test-plugin-event-triggered.png",
+    });
     console.log(`Screenshot saved as test-plugin-event-triggered.png`);
 
     // We don't try to stop the plugin because it should have exited on its own
@@ -269,27 +288,33 @@ async function testUI(): Promise<boolean> {
 
     // Take a final screenshot to show the completed status
     await sleep(2000);
-    await page.screenshot({ path: 'screenshots/test-plugin-final.png' });
+    await page.screenshot({ path: "screenshots/test-plugin-final.png" });
     console.log(`Screenshot saved as test-plugin-final.png`);
 
     // Check the final status - it should show "Completed Successfully" if our changes worked
-    const finalStatusText = await page.$eval('#status-text', el => el.textContent);
+    const finalStatusText = await page.$eval(
+      "#status-text",
+      (el) => el.textContent,
+    );
     console.log(`Final plugin status: ${finalStatusText}`);
 
     // Display final metadata
     try {
-      const finalMetadataText = await page.$eval('#plugin-metadata', (el: Element) => el.textContent || '');
+      const finalMetadataText = await page.$eval(
+        "#plugin-metadata",
+        (el: Element) => el.textContent || "",
+      );
       console.log(`Final plugin metadata:\n${finalMetadataText}`);
 
       // Check if the exit code is visible and is 0
-      const hasExitCode0 = finalMetadataText.includes('Exit code: 0');
+      const hasExitCode0 = finalMetadataText.includes("Exit code: 0");
       if (hasExitCode0) {
-        console.log('✅ Plugin completed successfully with exit code 0');
+        console.log("✅ Plugin completed successfully with exit code 0");
       } else {
-        console.log('⚠️ Plugin did not complete with exit code 0');
+        console.log("⚠️ Plugin did not complete with exit code 0");
       }
     } catch (error) {
-      console.log('Final metadata not available');
+      console.log("Final metadata not available");
     }
 
     console.log(`\nAll UI tests completed successfully!`);
@@ -302,7 +327,7 @@ async function testUI(): Promise<boolean> {
     if (browser) {
       const pages = await browser.pages();
       if (pages.length > 0) {
-        await pages[0].screenshot({ path: 'test-plugin-error.png' });
+        await pages[0].screenshot({ path: "test-plugin-error.png" });
         console.log(`Error state screenshot saved as test-plugin-error.png`);
       }
     }
@@ -366,7 +391,7 @@ async function main() {
 }
 
 // Run the main function
-main().catch(error => {
+main().catch((error) => {
   console.error(`Fatal error:`, error);
   cleanup();
   process.exit(1);

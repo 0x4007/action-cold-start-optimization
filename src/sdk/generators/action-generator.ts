@@ -3,14 +3,17 @@
  * Generates the action.yml file from the plugin configuration
  */
 
-import { writeFileSync, mkdirSync, existsSync } from 'fs';
-import { resolve, dirname } from 'path';
-import { PluginConfig } from '../config.js';
+import { writeFileSync, mkdirSync, existsSync } from "fs";
+import { resolve, dirname } from "path";
+import { PluginConfig } from "../config.js";
 
 /**
  * Generates the action.yml file from the plugin configuration
  */
-export function generateActionYml(config: PluginConfig, outputPath: string = './action.yml'): void {
+export function generateActionYml(
+  config: PluginConfig,
+  outputPath: string = "./action.yml",
+): void {
   const resolvedPath = resolve(outputPath);
 
   // Ensure the directory exists
@@ -24,10 +27,14 @@ export function generateActionYml(config: PluginConfig, outputPath: string = './
 description: "${config.description}"
 author: "${config.author}"
 
-${config.action.icon && config.action.color ? `branding:
+${
+  config.action.icon && config.action.color
+    ? `branding:
   icon: ${config.action.icon}
   color: ${config.action.color}
-` : ''}
+`
+    : ""
+}
 # Define your inputs here, mapping from the workflow_dispatch inputs
 inputs:
   stateId:
@@ -74,23 +81,39 @@ inputs:
     description: "Whether to use WebAssembly for faster execution"
     required: false
     default: "true"
-${Object.entries(config.action.inputs).map(([key, value]) => `  ${key}:
+${Object.entries(config.action.inputs)
+  .map(
+    ([key, value]) => `  ${key}:
     description: "${value.description}"
-    required: ${value.required}${value.default ? `
-    default: "${value.default}"` : ''}`).join('\n')}
+    required: ${value.required}${
+      value.default
+        ? `
+    default: "${value.default}"`
+        : ""
+    }`,
+  )
+  .join("\n")}
 
-${Object.keys(config.action.outputs || {}).length > 0 ? `# Define your outputs here
+${
+  Object.keys(config.action.outputs || {}).length > 0
+    ? `# Define your outputs here
 outputs:
-${Object.entries(config.action.outputs || {}).map(([key, value]) => `  ${key}:
-    description: "${value.description}"`).join('\n')}
-` : ''}
+${Object.entries(config.action.outputs || {})
+  .map(
+    ([key, value]) => `  ${key}:
+    description: "${value.description}"`,
+  )
+  .join("\n")}
+`
+    : ""
+}
 # The action will run directly using a custom runtime
 runs:
   using: "node20"
   main: "dist/index.js"`;
 
   // Write the action.yml file
-  writeFileSync(resolvedPath, actionYml, 'utf8');
+  writeFileSync(resolvedPath, actionYml, "utf8");
 
   console.log(`Generated action.yml at ${resolvedPath}`);
 }

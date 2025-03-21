@@ -3,8 +3,8 @@
  * Simplifies plugin creation with a declarative configuration
  */
 
-import { readFileSync, existsSync } from 'fs';
-import { resolve } from 'path';
+import { readFileSync, existsSync } from "fs";
+import { resolve } from "path";
 
 /**
  * Plugin configuration interface
@@ -16,14 +16,20 @@ export interface PluginConfig {
   action: {
     icon?: string;
     color?: string;
-    inputs: Record<string, {
-      description: string;
-      required: boolean;
-      default?: string;
-    }>;
-    outputs?: Record<string, {
-      description: string;
-    }>;
+    inputs: Record<
+      string,
+      {
+        description: string;
+        required: boolean;
+        default?: string;
+      }
+    >;
+    outputs?: Record<
+      string,
+      {
+        description: string;
+      }
+    >;
   };
   optimization?: {
     useWasm: boolean;
@@ -36,7 +42,9 @@ export interface PluginConfig {
 /**
  * Loads and parses the plugin configuration
  */
-export function loadConfig(configPath: string = './plugin.config.js'): PluginConfig {
+export function loadConfig(
+  configPath: string = "./plugin.config.js",
+): PluginConfig {
   const resolvedPath = resolve(configPath);
 
   if (!existsSync(resolvedPath)) {
@@ -45,22 +53,22 @@ export function loadConfig(configPath: string = './plugin.config.js'): PluginCon
 
   try {
     // For JavaScript config
-    if (resolvedPath.endsWith('.js')) {
+    if (resolvedPath.endsWith(".js")) {
       const config = require(resolvedPath);
       return validateConfig(config);
     }
 
     // For TypeScript config
-    if (resolvedPath.endsWith('.ts')) {
+    if (resolvedPath.endsWith(".ts")) {
       // This requires ts-node to be installed
-      require('ts-node/register');
+      require("ts-node/register");
       const config = require(resolvedPath).default;
       return validateConfig(config);
     }
 
     // For JSON config
-    if (resolvedPath.endsWith('.json')) {
-      const configContent = readFileSync(resolvedPath, 'utf8');
+    if (resolvedPath.endsWith(".json")) {
+      const configContent = readFileSync(resolvedPath, "utf8");
       const config = JSON.parse(configContent);
       return validateConfig(config);
     }
@@ -77,23 +85,23 @@ export function loadConfig(configPath: string = './plugin.config.js'): PluginCon
 function validateConfig(config: any): PluginConfig {
   // Basic validation
   if (!config.name) {
-    throw new Error('Configuration must include a name');
+    throw new Error("Configuration must include a name");
   }
 
   if (!config.description) {
-    throw new Error('Configuration must include a description');
+    throw new Error("Configuration must include a description");
   }
 
   if (!config.author) {
-    throw new Error('Configuration must include an author');
+    throw new Error("Configuration must include an author");
   }
 
   if (!config.action || !config.action.inputs) {
-    throw new Error('Configuration must include action.inputs');
+    throw new Error("Configuration must include action.inputs");
   }
 
   if (!config.events || Object.keys(config.events).length === 0) {
-    throw new Error('Configuration must include at least one event handler');
+    throw new Error("Configuration must include at least one event handler");
   }
 
   // Set defaults for optional fields
@@ -101,8 +109,8 @@ function validateConfig(config: any): PluginConfig {
     ...config,
     action: {
       ...config.action,
-      icon: config.action.icon || 'code',
-      color: config.action.color || 'blue',
+      icon: config.action.icon || "code",
+      color: config.action.color || "blue",
       outputs: config.action.outputs || {},
     },
     optimization: config.optimization || {

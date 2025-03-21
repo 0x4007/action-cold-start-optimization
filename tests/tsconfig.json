@@ -7,7 +7,5 @@
       "bun:test": ["node_modules/bun-types/types/bun.test.d.ts"]
     }
   },
-  "include": [
-    "./**/*.ts"
-  ]
+  "include": ["./**/*.ts"]
 }

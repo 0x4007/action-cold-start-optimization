@@ -2,7 +2,7 @@
 
 This document outlines the implementation details for Phase 2 of the GitHub Actions Plugin SDK with WebAssembly Optimization project.
 
-*Note: This documentation has been updated to reflect the reorganized project structure.*
+_Note: This documentation has been updated to reflect the reorganized project structure._
 
 ## Overview
 
@@ -72,6 +72,7 @@ GitHub Actions workflow templates for plugin testing and deployment.
 The test workflow (`.github/workflows/test-plugin.yml`) automates testing of plugins, including performance benchmarks.
 
 Features:
+
 - Automated testing on push and pull requests
 - Support for multiple Node.js versions
 - Performance benchmarking for cold start times
@@ -82,6 +83,7 @@ Features:
 The deploy workflow (`.github/workflows/deploy-plugin.yml`) handles deployment of plugins to GitHub Marketplace.
 
 Features:
+
 - Automated deployment on release
 - Package generation for npm
 - GitHub Action metadata generation
@@ -92,6 +94,7 @@ Features:
 The action generator (`scripts/generate-action.js`) creates GitHub Action metadata from plugin configuration.
 
 Features:
+
 - Generates action.yml from plugin.config.js/ts
 - Supports custom inputs and outputs
 - Configurable branding options
@@ -105,6 +108,7 @@ Two example plugins were created to demonstrate different implementation tiers a
 A simple plugin that automatically labels issues based on content.
 
 Features:
+
 - JavaScript implementation (Tier 1)
 - Issue event handling
 - Label mapping configuration
@@ -115,6 +119,7 @@ Features:
 A more advanced plugin that analyzes pull requests and provides feedback.
 
 Features:
+
 - TypeScript implementation with WASM integration (Tier 2)
 - Pull request event handling
 - Code analysis capabilities

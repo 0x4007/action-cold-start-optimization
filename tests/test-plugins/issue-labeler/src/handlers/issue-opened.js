@@ -1,4 +1,4 @@
-const { getContext } = require('@your-org/plugin-sdk');
+const { getContext } = require("@your-org/plugin-sdk");
 
 /**
  * Handler for issue.opened event
@@ -7,15 +7,15 @@ const { getContext } = require('@your-org/plugin-sdk');
 module.exports = async function handleIssueOpened(payload) {
   const { github, utils, log } = getContext();
 
-  log('Processing new issue');
+  log("Processing new issue");
 
   // Get the issue details
   const issueNumber = payload.issue.number;
   const issueTitle = payload.issue.title;
-  const issueBody = payload.issue.body || '';
+  const issueBody = payload.issue.body || "";
 
   // Get label mapping from inputs
-  const labelMappingJson = process.env.INPUT_LABELMAPPING || '{}';
+  const labelMappingJson = process.env.INPUT_LABELMAPPING || "{}";
   const labelMapping = utils.parseJSON(labelMappingJson);
 
   // Determine which labels to apply
@@ -26,29 +26,29 @@ module.exports = async function handleIssueOpened(payload) {
     const content = `${issueTitle} ${issueBody}`.toLowerCase();
 
     // If any keyword is found in the content, add the label
-    if (keywords.some(keyword => content.includes(keyword.toLowerCase()))) {
+    if (keywords.some((keyword) => content.includes(keyword.toLowerCase()))) {
       labelsToApply.push(label);
     }
   }
 
   // Apply labels if any were found
   if (labelsToApply.length > 0) {
-    log(`Adding labels: ${labelsToApply.join(', ')}`);
+    log(`Adding labels: ${labelsToApply.join(", ")}`);
 
     await github.octokit.issues.addLabels({
       ...github.repo,
       issue_number: issueNumber,
-      labels: labelsToApply
+      labels: labelsToApply,
     });
 
     // Add a comment to the issue
     await github.createComment(
       issueNumber,
-      `I've automatically added the following labels: ${labelsToApply.join(', ')}`
+      `I've automatically added the following labels: ${labelsToApply.join(", ")}`,
     );
   } else {
-    log('No matching labels found');
+    log("No matching labels found");
   }
 
-  log('Issue processing completed');
+  log("Issue processing completed");
 };

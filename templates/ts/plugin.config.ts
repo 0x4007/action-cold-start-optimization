@@ -1,4 +1,4 @@
-/**
+
  * Plugin configuration for {{name}}
  * This is a TypeScript + WASM implementation (Tier 2)
  */

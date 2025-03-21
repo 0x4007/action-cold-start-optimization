@@ -1,4 +1,12 @@
-import { describe, test, expect, beforeEach, afterEach, mock, spyOn } from "bun:test";
+import {
+  describe,
+  test,
+  expect,
+  beforeEach,
+  afterEach,
+  mock,
+  spyOn,
+} from "bun:test";
 import { createContext } from "../../src/sdk/context.js";
 import * as environmentModule from "../../src/sdk/environment.js";
 
@@ -10,12 +18,12 @@ describe("Context Module", () => {
   const mockEventPayload = JSON.stringify({
     repository: {
       owner: { login: "test-owner" },
-      name: "test-repo"
+      name: "test-repo",
     },
     issue: {
       number: 42,
-      title: "Test Issue"
-    }
+      title: "Test Issue",
+    },
   });
 
   // Mock environment for testing
@@ -32,7 +40,7 @@ describe("Context Module", () => {
     kernelPublicKey: "mock-public-key",
     logLevel: "debug",
     supabaseUrl: "https://example.supabase.co",
-    supabaseKey: "mock-supabase-key"
+    supabaseKey: "mock-supabase-key",
   };
 
   // Spies
@@ -41,13 +49,16 @@ describe("Context Module", () => {
 
   beforeEach(() => {
     // Mock environment
-    getEnvironmentSpy = spyOn(environmentModule, "getEnvironment").mockReturnValue(mockEnvironment);
+    getEnvironmentSpy = spyOn(
+      environmentModule,
+      "getEnvironment",
+    ).mockReturnValue(mockEnvironment);
 
     // Spy on console.log
     consoleLogSpy = spyOn(console, "log").mockImplementation(() => {});
 
     // Reset environment variables
-    Object.keys(mockEnvironment).forEach(key => {
+    Object.keys(mockEnvironment).forEach((key) => {
       process.env[key.toUpperCase()] = undefined;
     });
   });
@@ -91,7 +102,7 @@ describe("Context Module", () => {
     // Arrange - mock empty event payload
     getEnvironmentSpy.mockReturnValueOnce({
       ...mockEnvironment,
-      eventPayload: '{}'
+      eventPayload: "{}",
     });
 
     // Act
@@ -142,10 +153,18 @@ describe("Context Module", () => {
 
     // Testing the implementation would log to console
     await context.github.createComment(42, "Test comment");
-    expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining("Creating comment on issue #42"));
+    expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Creating comment on issue #42"),
+    );
 
-    const issueNumber = await context.github.createIssue("Test title", "Test body", ["bug"]);
-    expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining("Creating issue: Test title"));
+    const issueNumber = await context.github.createIssue(
+      "Test title",
+      "Test body",
+      ["bug"],
+    );
+    expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Creating issue: Test title"),
+    );
     expect(issueNumber).toBe(1); // Should return 1 as per mock implementation
   });
 
@@ -153,7 +172,7 @@ describe("Context Module", () => {
     // Arrange
     const customEnv = {
       ...mockEnvironment,
-      stateId: "custom-state-id"
+      stateId: "custom-state-id",
     };
     getEnvironmentSpy.mockReturnValueOnce(customEnv);
 

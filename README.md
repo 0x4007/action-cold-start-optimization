@@ -56,6 +56,7 @@ bun run create:plugin:interactive  # Creates plugin in generated/ directory
 ```
 
 This tool will guide you through creating a new plugin, allowing you to:
+
 - Choose a template (JavaScript, TypeScript, Rust)
 - Select plugin features
 - Customize plugin metadata
@@ -70,6 +71,7 @@ bun run create:plugin:auto -- --name my-plugin --template ts --features issues,p
 ```
 
 Available options:
+
 - `--name`: Name of the plugin (default: "my-plugin")
 - `--description`: Description of the plugin (default: "A GitHub Action plugin")
 - `--author`: Author of the plugin (default: "Your Name")
@@ -90,6 +92,7 @@ bun run dev:server --plugin-dir my-plugin
 ```
 
 Features:
+
 - Webhook event simulation
 - Mock GitHub API responses
 - Hot reloading for rapid development

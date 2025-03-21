@@ -3,7 +3,7 @@
  * This is a TypeScript + WASM implementation (Tier 2)
  */
 
-import { EventPayload } from 'plugin-sdk';
+import { EventPayload } from "plugin-sdk";
 
 /**
  * Issue opened event payload

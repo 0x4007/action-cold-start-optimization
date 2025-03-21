@@ -3,10 +3,10 @@
  * This is a JavaScript-only implementation (Tier 1)
  */
 
-const { init, on } = require('plugin-sdk');
+const { init, on } = require("plugin-sdk");
 
 // Load handlers
-const handleIssueOpened = require('./handlers/issue-opened');
+const handleIssueOpened = require("./handlers/issue-opened");
 
 /**
  * Initialize the SDK and register event handlers
@@ -16,13 +16,13 @@ async function main() {
   await init();
 
   // Register event handlers
-  on('issues.opened', handleIssueOpened);
+  on("issues.opened", handleIssueOpened);
 
-  console.log('Plugin initialized');
+  console.log("Plugin initialized");
 }
 
 // Start the plugin
-main().catch(error => {
-  console.error('Plugin initialization failed:', error);
+main().catch((error) => {
+  console.error("Plugin initialization failed:", error);
   process.exit(1);
 });

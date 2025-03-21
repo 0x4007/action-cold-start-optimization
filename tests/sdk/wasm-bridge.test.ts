@@ -1,5 +1,17 @@
-import { describe, test, expect, beforeEach, afterEach, mock, spyOn } from "bun:test";
-import { initWasm, getWasmExports, isWasmInitialized } from "../../src/sdk/wasm-bridge.js";
+import {
+  describe,
+  test,
+  expect,
+  beforeEach,
+  afterEach,
+  mock,
+  spyOn,
+} from "bun:test";
+import {
+  initWasm,
+  getWasmExports,
+  isWasmInitialized,
+} from "../../src/sdk/wasm-bridge.js";
 import * as wasmInline from "../../src/wasm-inline.js";
 
 describe("WASM Bridge Module", () => {
@@ -21,14 +33,17 @@ describe("WASM Bridge Module", () => {
       process_event: (envJson: string) => JSON.stringify({ processed: true }),
       parse_json: (json: string) => json,
       validate_payload: (schema: string, payload: string) => 1,
-      compute_hash: (data: string) => "mocked-hash"
+      compute_hash: (data: string) => "mocked-hash",
     };
 
     const mockInstance = {
-      exports: mockExports
+      exports: mockExports,
     };
 
-    instantiateWasmMock = spyOn(wasmInline, "instantiateWasmFromBase64").mockImplementation(async () => {
+    instantiateWasmMock = spyOn(
+      wasmInline,
+      "instantiateWasmFromBase64",
+    ).mockImplementation(async () => {
       return mockInstance as unknown as WebAssembly.Instance;
     });
   });
@@ -63,8 +78,10 @@ describe("WASM Bridge Module", () => {
 
     // Check if error was logged (will happen regardless of whether exception was caught)
     const errorCalls = consoleErrorSpy.mock.calls;
-    const foundErrorLog = errorCalls.some((call: any[]) =>
-      call[0] === "Failed to initialize WebAssembly:" && call[1] === mockError
+    const foundErrorLog = errorCalls.some(
+      (call: any[]) =>
+        call[0] === "Failed to initialize WebAssembly:" &&
+        call[1] === mockError,
     );
 
     // This test is conditional since initWasm might already have been called and succeeded
@@ -90,7 +107,10 @@ describe("WASM Bridge Module", () => {
     } catch (error) {
       // If not initialized, this should throw the expected error
       if (!isWasmInitialized()) {
-        expect(error).toHaveProperty("message", "WebAssembly not initialized. Call initWasm() first.");
+        expect(error).toHaveProperty(
+          "message",
+          "WebAssembly not initialized. Call initWasm() first.",
+        );
       } else {
         throw error; // Re-throw if we got an unexpected error
       }

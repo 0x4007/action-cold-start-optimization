@@ -3,7 +3,7 @@
 
 // The base64-encoded WebAssembly will be injected here during the build process
 // This is just a placeholder that will be replaced by the actual base64 string
-export const WASM_BASE64 = 'AGFzbQEAAAA=';
+export const WASM_BASE64 = "AGFzbQEAAAA=";
 
 /**
  * Decodes a base64 string to a Uint8Array
@@ -22,7 +22,7 @@ export function decodeBase64(base64: string): Uint8Array {
  */
 export async function instantiateWasmFromBase64(
   base64: string,
-  importObject: WebAssembly.Imports = {}
+  importObject: WebAssembly.Imports = {},
 ): Promise<WebAssembly.Instance> {
   // Decode the base64 string to a Uint8Array
   const wasmBytes = decodeBase64(base64);

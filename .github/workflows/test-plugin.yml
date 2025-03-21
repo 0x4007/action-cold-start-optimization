@@ -2,81 +2,81 @@ name: Test Plugin
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
     inputs:
       plugin_path:
-        description: 'Path to the plugin directory'
+        description: "Path to the plugin directory"
         required: true
-        default: 'test-plugins/my-plugin'
+        default: "test-plugins/my-plugin"
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
-    - name: Setup Bun
-      uses: oven-sh/setup-bun@v1
-      with:
-        bun-version: latest
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
-    - name: Setup Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        profile: minimal
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
 
-    - name: Install wasm-pack
-      run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
-    - name: Install dependencies
-      run: bun install
+      - name: Install dependencies
+        run: bun install
 
-    - name: Build SDK
-      run: bun run build:sdk
+      - name: Build SDK
+        run: bun run build:sdk
 
-    - name: Determine plugin path
-      id: plugin_path
-      run: |
-        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-          echo "PLUGIN_PATH=${{ github.event.inputs.plugin_path }}" >> $GITHUB_ENV
-        else
-          echo "PLUGIN_PATH=test-plugins/my-plugin" >> $GITHUB_ENV
-        fi
+      - name: Determine plugin path
+        id: plugin_path
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "PLUGIN_PATH=${{ github.event.inputs.plugin_path }}" >> $GITHUB_ENV
+          else
+            echo "PLUGIN_PATH=test-plugins/my-plugin" >> $GITHUB_ENV
+          fi
 
-    - name: Install plugin dependencies
-      run: |
-        cd $PLUGIN_PATH
-        bun install
+      - name: Install plugin dependencies
+        run: |
+          cd $PLUGIN_PATH
+          bun install
 
-    - name: Build plugin
-      run: |
-        cd $PLUGIN_PATH
-        bun run build
+      - name: Build plugin
+        run: |
+          cd $PLUGIN_PATH
+          bun run build
 
-    - name: Test plugin
-      run: |
-        cd $PLUGIN_PATH
-        bun run test
+      - name: Test plugin
+        run: |
+          cd $PLUGIN_PATH
+          bun run test
 
-    - name: Performance test
-      run: |
-        # Measure cold start time
-        START_TIME=$(date +%s%N)
-        cd $PLUGIN_PATH
-        bun run src/index.js || bun run dist/index.js
-        END_TIME=$(date +%s%N)
-        DURATION=$((($END_TIME - $START_TIME)/1000000))
-        echo "Cold start time: $DURATION ms"
+      - name: Performance test
+        run: |
+          # Measure cold start time
+          START_TIME=$(date +%s%N)
+          cd $PLUGIN_PATH
+          bun run src/index.js || bun run dist/index.js
+          END_TIME=$(date +%s%N)
+          DURATION=$((($END_TIME - $START_TIME)/1000000))
+          echo "Cold start time: $DURATION ms"
 
-        # Report results
-        echo "::set-output name=cold_start_time::$DURATION"
+          # Report results
+          echo "::set-output name=cold_start_time::$DURATION"

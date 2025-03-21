@@ -6,126 +6,126 @@ on:
   workflow_dispatch:
     inputs:
       plugin_path:
-        description: 'Path to the plugin directory'
+        description: "Path to the plugin directory"
         required: true
-        default: 'test-plugins/my-plugin'
+        default: "test-plugins/my-plugin"
       version:
-        description: 'Version to publish'
+        description: "Version to publish"
         required: true
-        default: '1.0.0'
+        default: "1.0.0"
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        registry-url: 'https://registry.npmjs.org'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
 
-    - name: Setup Bun
-      uses: oven-sh/setup-bun@v1
-      with:
-        bun-version: latest
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
-    - name: Setup Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        profile: minimal
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
 
-    - name: Install wasm-pack
-      run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
-    - name: Install dependencies
-      run: bun install
+      - name: Install dependencies
+        run: bun install
 
-    - name: Build SDK
-      run: bun run build:sdk
+      - name: Build SDK
+        run: bun run build:sdk
 
-    - name: Determine plugin path and version
-      id: plugin_info
-      run: |
-        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-          echo "PLUGIN_PATH=${{ github.event.inputs.plugin_path }}" >> $GITHUB_ENV
-          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
-        else
-          # For release events, use the first plugin in test-plugins
-          echo "PLUGIN_PATH=$(ls -d test-plugins/* | head -n 1)" >> $GITHUB_ENV
-          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
-        fi
+      - name: Determine plugin path and version
+        id: plugin_info
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "PLUGIN_PATH=${{ github.event.inputs.plugin_path }}" >> $GITHUB_ENV
+            echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+          else
+            # For release events, use the first plugin in test-plugins
+            echo "PLUGIN_PATH=$(ls -d test-plugins/* | head -n 1)" >> $GITHUB_ENV
+            echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+          fi
 
-    - name: Install plugin dependencies
-      run: |
-        cd $PLUGIN_PATH
-        bun install
+      - name: Install plugin dependencies
+        run: |
+          cd $PLUGIN_PATH
+          bun install
 
-    - name: Build plugin
-      run: |
-        cd $PLUGIN_PATH
-        bun run build
+      - name: Build plugin
+        run: |
+          cd $PLUGIN_PATH
+          bun run build
 
-    - name: Run tests
-      run: |
-        cd $PLUGIN_PATH
-        bun run test
+      - name: Run tests
+        run: |
+          cd $PLUGIN_PATH
+          bun run test
 
-    - name: Update version
-      run: |
-        cd $PLUGIN_PATH
-        npm version $VERSION --no-git-tag-version
+      - name: Update version
+        run: |
+          cd $PLUGIN_PATH
+          npm version $VERSION --no-git-tag-version
 
-    - name: Package plugin
-      run: |
-        cd $PLUGIN_PATH
-        mkdir -p dist
-        cp -r package.json README.md LICENSE* dist/
+      - name: Package plugin
+        run: |
+          cd $PLUGIN_PATH
+          mkdir -p dist
+          cp -r package.json README.md LICENSE* dist/
 
-        # For JavaScript plugins
-        if [ -d "src" ] && [ -f "src/index.js" ]; then
-          cp -r src dist/
-        fi
+          # For JavaScript plugins
+          if [ -d "src" ] && [ -f "src/index.js" ]; then
+            cp -r src dist/
+          fi
 
-        # Create tarball
-        cd dist
-        npm pack
+          # Create tarball
+          cd dist
+          npm pack
 
-    - name: Publish to GitHub Packages
-      run: |
-        cd $PLUGIN_PATH/dist
-        echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > .npmrc
-        echo "@${{ github.repository_owner }}:registry=https://npm.pkg.github.com" >> .npmrc
-        npm publish --access public
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish to GitHub Packages
+        run: |
+          cd $PLUGIN_PATH/dist
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > .npmrc
+          echo "@${{ github.repository_owner }}:registry=https://npm.pkg.github.com" >> .npmrc
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Create GitHub Action
-      run: |
-        cd $PLUGIN_PATH
+      - name: Create GitHub Action
+        run: |
+          cd $PLUGIN_PATH
 
-        # Generate action.yml if it doesn't exist
-        if [ ! -f "action.yml" ]; then
-          node ../../scripts/generate-action.js
-        fi
+          # Generate action.yml if it doesn't exist
+          if [ ! -f "action.yml" ]; then
+            node ../../scripts/generate-action.js
+          fi
 
-        # Create release assets
-        mkdir -p release
-        cp -r action.yml dist/* release/
+          # Create release assets
+          mkdir -p release
+          cp -r action.yml dist/* release/
 
-        # Create release archive
-        cd release
-        zip -r ../${{ github.event.repository.name }}-$VERSION.zip .
+          # Create release archive
+          cd release
+          zip -r ../${{ github.event.repository.name }}-$VERSION.zip .
 
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ${{ env.PLUGIN_PATH }}/${{ github.event.repository.name }}-${{ env.VERSION }}.zip
-        asset_name: ${{ github.event.repository.name }}-${{ env.VERSION }}.zip
-        asset_content_type: application/zip
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ env.PLUGIN_PATH }}/${{ github.event.repository.name }}-${{ env.VERSION }}.zip
+          asset_name: ${{ github.event.repository.name }}-${{ env.VERSION }}.zip
+          asset_content_type: application/zip

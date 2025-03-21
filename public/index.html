@@ -1,450 +1,528 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plugin Development Server</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      color: #333;
-    }
-    h1, h2 {
-      color: #0366d6;
-    }
-    .card {
-      background: #f6f8fa;
-      border: 1px solid #e1e4e8;
-      border-radius: 6px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .event-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 10px;
-    }
-    .event-button {
-      background: #0366d6;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 8px 12px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.2s;
-    }
-    .event-button:hover {
-      background: #0255b3;
-    }
-    pre {
-      background: #f6f8fa;
-      border: 1px solid #e1e4e8;
-      border-radius: 6px;
-      padding: 16px;
-      overflow: auto;
-      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-      font-size: 14px;
-    }
-    .log-container {
-      height: 300px;
-      overflow-y: auto;
-      background: #f6f8fa;
-      border: 1px solid #e1e4e8;
-      border-radius: 6px;
-      padding: 16px;
-      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-      font-size: 14px;
-    }
-    .log-entry {
-      margin: 4px 0;
-      white-space: pre-wrap;
-      word-break: break-all;
-    }
-    .log-info {
-      color: #0366d6;
-    }
-    .log-error {
-      color: #d73a49;
-    }
-    .log-success {
-      color: #22863a;
-    }
-    .tabs {
-      display: flex;
-      border-bottom: 1px solid #e1e4e8;
-      margin-bottom: 16px;
-    }
-    .tab {
-      padding: 8px 16px;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-    }
-    .tab.active {
-      border-bottom: 2px solid #0366d6;
-      font-weight: bold;
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    .payload-editor {
-      width: 100%;
-      height: 300px;
-      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-      font-size: 14px;
-      padding: 8px;
-      border: 1px solid #e1e4e8;
-      border-radius: 6px;
-    }
-    .status {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-right: 8px;
-    }
-    .status.running {
-      background: #22863a;
-    }
-    .status.stopped {
-      background: #d73a49;
-    }
-    .status.success {
-      background: #28a745;
-    }
-    .status.error {
-      background: #dc3545;
-    }
-    .metadata-section {
-      margin-top: 15px;
-      font-size: 0.9em;
-      border-top: 1px solid #e1e4e8;
-      padding-top: 10px;
-    }
-    .metadata-section h3 {
-      margin-top: 0;
-      font-size: 1.1em;
-    }
-    .metadata-section p {
-      margin: 5px 0;
-    }
-  </style>
-</head>
-<body>
-  <h1>Plugin Development Server</h1>
-  <div class="card">
-    <h2>Plugin: <span id="plugin-name">Loading...</span></h2>
-    <p>Status: <span class="status stopped" id="status-indicator"></span> <span id="status-text">Stopped</span></p>
-    <button id="start-button" class="event-button">Start Plugin</button>
-    <button id="stop-button" class="event-button" style="background: #d73a49; display: none;">Stop Plugin</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plugin Development Server</title>
+    <style>
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        color: #333;
+      }
+      h1,
+      h2 {
+        color: #0366d6;
+      }
+      .card {
+        background: #f6f8fa;
+        border: 1px solid #e1e4e8;
+        border-radius: 6px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      .event-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+      }
+      .event-button {
+        background: #0366d6;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.2s;
+      }
+      .event-button:hover {
+        background: #0255b3;
+      }
+      pre {
+        background: #f6f8fa;
+        border: 1px solid #e1e4e8;
+        border-radius: 6px;
+        padding: 16px;
+        overflow: auto;
+        font-family:
+          "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 14px;
+      }
+      .log-container {
+        height: 300px;
+        overflow-y: auto;
+        background: #f6f8fa;
+        border: 1px solid #e1e4e8;
+        border-radius: 6px;
+        padding: 16px;
+        font-family:
+          "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 14px;
+      }
+      .log-entry {
+        margin: 4px 0;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+      .log-info {
+        color: #0366d6;
+      }
+      .log-error {
+        color: #d73a49;
+      }
+      .log-success {
+        color: #22863a;
+      }
+      .tabs {
+        display: flex;
+        border-bottom: 1px solid #e1e4e8;
+        margin-bottom: 16px;
+      }
+      .tab {
+        padding: 8px 16px;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+      }
+      .tab.active {
+        border-bottom: 2px solid #0366d6;
+        font-weight: bold;
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      .payload-editor {
+        width: 100%;
+        height: 300px;
+        font-family:
+          "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 14px;
+        padding: 8px;
+        border: 1px solid #e1e4e8;
+        border-radius: 6px;
+      }
+      .status {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+      .status.running {
+        background: #22863a;
+      }
+      .status.stopped {
+        background: #d73a49;
+      }
+      .status.success {
+        background: #28a745;
+      }
+      .status.error {
+        background: #dc3545;
+      }
+      .metadata-section {
+        margin-top: 15px;
+        font-size: 0.9em;
+        border-top: 1px solid #e1e4e8;
+        padding-top: 10px;
+      }
+      .metadata-section h3 {
+        margin-top: 0;
+        font-size: 1.1em;
+      }
+      .metadata-section p {
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Plugin Development Server</h1>
+    <div class="card">
+      <h2>Plugin: <span id="plugin-name">Loading...</span></h2>
+      <p>
+        Status: <span class="status stopped" id="status-indicator"></span>
+        <span id="status-text">Stopped</span>
+      </p>
+      <button id="start-button" class="event-button">Start Plugin</button>
+      <button
+        id="stop-button"
+        class="event-button"
+        style="background: #d73a49; display: none"
+      >
+        Stop Plugin
+      </button>
 
-    <!-- New section to display metadata -->
-    <div id="plugin-metadata" class="metadata-section"></div>
-  </div>
-
-  <div class="tabs">
-    <div class="tab active" data-tab="events">Events</div>
-    <div class="tab" data-tab="logs">Logs</div>
-    <div class="tab" data-tab="payload">Payload Editor</div>
-  </div>
-
-  <div class="tab-content active" id="events-tab">
-    <h2>Trigger Events</h2>
-    <div class="event-list" id="event-list">
-      <button class="event-button" data-event="issue.opened">issue.opened</button>
-      <button class="event-button" data-event="issue.closed">issue.closed</button>
-      <button class="event-button" data-event="issue.labeled">issue.labeled</button>
-      <button class="event-button" data-event="pull_request.opened">pull_request.opened</button>
-      <button class="event-button" data-event="pull_request.review">pull_request.review</button>
-      <button class="event-button" data-event="push">push</button>
-      <button class="event-button" data-event="release">release</button>
-      <button class="event-button" data-event="external.service">external.service</button>
+      <!-- New section to display metadata -->
+      <div id="plugin-metadata" class="metadata-section"></div>
     </div>
-  </div>
 
-  <div class="tab-content" id="logs-tab">
-    <h2>Logs</h2>
-    <div class="log-container" id="log-container"></div>
-  </div>
+    <div class="tabs">
+      <div class="tab active" data-tab="events">Events</div>
+      <div class="tab" data-tab="logs">Logs</div>
+      <div class="tab" data-tab="payload">Payload Editor</div>
+    </div>
 
-  <div class="tab-content" id="payload-tab">
-    <h2>Payload Editor</h2>
-    <p>Customize the event payload:</p>
-    <textarea id="payload-editor" class="payload-editor"></textarea>
-    <button id="save-payload" class="event-button" style="margin-top: 10px;">Save Payload</button>
-  </div>
+    <div class="tab-content active" id="events-tab">
+      <h2>Trigger Events</h2>
+      <div class="event-list" id="event-list">
+        <button class="event-button" data-event="issue.opened">
+          issue.opened
+        </button>
+        <button class="event-button" data-event="issue.closed">
+          issue.closed
+        </button>
+        <button class="event-button" data-event="issue.labeled">
+          issue.labeled
+        </button>
+        <button class="event-button" data-event="pull_request.opened">
+          pull_request.opened
+        </button>
+        <button class="event-button" data-event="pull_request.review">
+          pull_request.review
+        </button>
+        <button class="event-button" data-event="push">push</button>
+        <button class="event-button" data-event="release">release</button>
+        <button class="event-button" data-event="external.service">
+          external.service
+        </button>
+      </div>
+    </div>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
-    let pluginProcess = null;
-    let currentEvent = 'issue.opened';
-    let customPayloads = {};
+    <div class="tab-content" id="logs-tab">
+      <h2>Logs</h2>
+      <div class="log-container" id="log-container"></div>
+    </div>
 
-    // Store the plugin metadata
-    let pluginStatus = {
-      running: false,
-      startTime: null,
-      endTime: null,
-      exitCode: null,
-      duration: null,
-      eventCount: 0,
-      configInfo: null
-    };
+    <div class="tab-content" id="payload-tab">
+      <h2>Payload Editor</h2>
+      <p>Customize the event payload:</p>
+      <textarea id="payload-editor" class="payload-editor"></textarea>
+      <button id="save-payload" class="event-button" style="margin-top: 10px">
+        Save Payload
+      </button>
+    </div>
 
-    // Default payloads
-    const defaultPayloads = {
-      'issue.opened': {
-        issue: {
-          number: 1,
-          title: 'Test Issue',
-          body: 'This is a test issue created by the development server.',
-          labels: []
-        },
-        repository: {
-          owner: {
-            login: 'test-user'
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      let pluginProcess = null;
+      let currentEvent = "issue.opened";
+      let customPayloads = {};
+
+      // Store the plugin metadata
+      let pluginStatus = {
+        running: false,
+        startTime: null,
+        endTime: null,
+        exitCode: null,
+        duration: null,
+        eventCount: 0,
+        configInfo: null,
+      };
+
+      // Default payloads
+      const defaultPayloads = {
+        "issue.opened": {
+          issue: {
+            number: 1,
+            title: "Test Issue",
+            body: "This is a test issue created by the development server.",
+            labels: [],
           },
-          name: 'test-repo'
-        }
-      },
-      'external.service': {
-        issue: {
-          number: 1,
-          title: 'Test Issue for External Service',
-          body: 'This is a test issue for external service integration.',
-          labels: []
-        },
-        repository: {
-          owner: {
-            login: 'test-user'
+          repository: {
+            owner: {
+              login: "test-user",
+            },
+            name: "test-repo",
           },
-          name: 'test-repo'
-        }
-      }
-    };
+        },
+        "external.service": {
+          issue: {
+            number: 1,
+            title: "Test Issue for External Service",
+            body: "This is a test issue for external service integration.",
+            labels: [],
+          },
+          repository: {
+            owner: {
+              login: "test-user",
+            },
+            name: "test-repo",
+          },
+        },
+      };
 
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      // Tab switching
-      document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      // Initialize
+      document.addEventListener("DOMContentLoaded", () => {
+        // Tab switching
+        document.querySelectorAll(".tab").forEach((tab) => {
+          tab.addEventListener("click", () => {
+            document
+              .querySelectorAll(".tab")
+              .forEach((t) => t.classList.remove("active"));
+            document
+              .querySelectorAll(".tab-content")
+              .forEach((c) => c.classList.remove("active"));
 
-          tab.classList.add('active');
-          document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
+            tab.classList.add("active");
+            document
+              .getElementById(tab.dataset.tab + "-tab")
+              .classList.add("active");
+          });
         });
-      });
 
-      // Event buttons
-      document.querySelectorAll('.event-button[data-event]').forEach(button => {
-        button.addEventListener('click', () => {
-          currentEvent = button.dataset.event;
-          triggerEvent(currentEvent);
+        // Event buttons
+        document
+          .querySelectorAll(".event-button[data-event]")
+          .forEach((button) => {
+            button.addEventListener("click", () => {
+              currentEvent = button.dataset.event;
+              triggerEvent(currentEvent);
+            });
+          });
+
+        // Start/Stop buttons
+        document
+          .getElementById("start-button")
+          .addEventListener("click", startPlugin);
+        document
+          .getElementById("stop-button")
+          .addEventListener("click", stopPlugin);
+
+        // Payload editor
+        const payloadEditor = document.getElementById("payload-editor");
+        payloadEditor.value = JSON.stringify(
+          defaultPayloads["issue.opened"] || {},
+          null,
+          2,
+        );
+
+        document
+          .getElementById("save-payload")
+          .addEventListener("click", () => {
+            try {
+              const payload = JSON.parse(payloadEditor.value);
+              customPayloads[currentEvent] = payload;
+              addLogEntry(
+                "Payload saved for event: " + currentEvent,
+                "success",
+              );
+            } catch (error) {
+              addLogEntry("Invalid JSON: " + error.message, "error");
+            }
+          });
+
+        // Socket events
+        socket.on("connect", () => {
+          addLogEntry("Connected to development server", "info");
         });
+
+        socket.on("plugin-info", (info) => {
+          document.getElementById("plugin-name").textContent = info.name;
+        });
+
+        socket.on("plugin-started", (data) => {
+          pluginStatus.running = true;
+          pluginStatus.startTime = new Date(data.startTime);
+          pluginStatus.configInfo = data.configInfo;
+
+          updatePluginStatus();
+          addLogEntry(
+            `Plugin started at ${formatTime(pluginStatus.startTime)}`,
+            "success",
+          );
+
+          // Display plugin info if available
+          if (
+            pluginStatus.configInfo &&
+            pluginStatus.configInfo.features &&
+            pluginStatus.configInfo.features.length
+          ) {
+            addLogEntry(
+              `Plugin features: ${pluginStatus.configInfo.features.join(", ")}`,
+              "info",
+            );
+          }
+        });
+
+        socket.on("plugin-stopped", (data) => {
+          pluginStatus.running = false;
+          pluginStatus.exitCode = data.exitCode;
+          pluginStatus.endTime = new Date(data.endTime);
+          pluginStatus.signal = data.signal;
+          pluginStatus.eventCount = data.eventCount;
+
+          // Calculate duration
+          if (pluginStatus.startTime && pluginStatus.endTime) {
+            pluginStatus.duration =
+              (pluginStatus.endTime - pluginStatus.startTime) / 1000;
+          }
+
+          updatePluginStatus();
+
+          // Log different messages based on exit code
+          if (pluginStatus.exitCode === 0) {
+            addLogEntry(
+              `Plugin completed successfully after ${pluginStatus.duration.toFixed(2)}s with ${pluginStatus.eventCount} events processed`,
+              "success",
+            );
+          } else {
+            addLogEntry(
+              `Plugin stopped with exit code ${pluginStatus.exitCode}${pluginStatus.signal ? `, signal: ${pluginStatus.signal}` : ""} after ${pluginStatus.duration.toFixed(2)}s`,
+              "info",
+            );
+          }
+
+          // Update metadata display
+          updateMetadataDisplay();
+        });
+
+        socket.on("plugin-log", (log) => {
+          addLogEntry(log.message, log.type);
+        });
+
+        socket.on("event-triggered", (data) => {
+          addLogEntry(`Event triggered: ${data.event}`, "info");
+        });
+
+        // Request plugin info
+        socket.emit("get-plugin-info");
       });
 
-      // Start/Stop buttons
-      document.getElementById('start-button').addEventListener('click', startPlugin);
-      document.getElementById('stop-button').addEventListener('click', stopPlugin);
+      function updatePluginStatus() {
+        const indicator = document.getElementById("status-indicator");
+        const text = document.getElementById("status-text");
+        const startButton = document.getElementById("start-button");
+        const stopButton = document.getElementById("stop-button");
+        const metadataSection = document.getElementById("plugin-metadata");
 
-      // Payload editor
-      const payloadEditor = document.getElementById('payload-editor');
-      payloadEditor.value = JSON.stringify(defaultPayloads['issue.opened'] || {}, null, 2);
-
-      document.getElementById('save-payload').addEventListener('click', () => {
-        try {
-          const payload = JSON.parse(payloadEditor.value);
-          customPayloads[currentEvent] = payload;
-          addLogEntry('Payload saved for event: ' + currentEvent, 'success');
-        } catch (error) {
-          addLogEntry('Invalid JSON: ' + error.message, 'error');
-        }
-      });
-
-      // Socket events
-      socket.on('connect', () => {
-        addLogEntry('Connected to development server', 'info');
-      });
-
-      socket.on('plugin-info', (info) => {
-        document.getElementById('plugin-name').textContent = info.name;
-      });
-
-      socket.on('plugin-started', (data) => {
-        pluginStatus.running = true;
-        pluginStatus.startTime = new Date(data.startTime);
-        pluginStatus.configInfo = data.configInfo;
-
-        updatePluginStatus();
-        addLogEntry(`Plugin started at ${formatTime(pluginStatus.startTime)}`, 'success');
-
-        // Display plugin info if available
-        if (pluginStatus.configInfo && pluginStatus.configInfo.features && pluginStatus.configInfo.features.length) {
-          addLogEntry(`Plugin features: ${pluginStatus.configInfo.features.join(', ')}`, 'info');
-        }
-      });
-
-      socket.on('plugin-stopped', (data) => {
-        pluginStatus.running = false;
-        pluginStatus.exitCode = data.exitCode;
-        pluginStatus.endTime = new Date(data.endTime);
-        pluginStatus.signal = data.signal;
-        pluginStatus.eventCount = data.eventCount;
-
-        // Calculate duration
-        if (pluginStatus.startTime && pluginStatus.endTime) {
-          pluginStatus.duration = (pluginStatus.endTime - pluginStatus.startTime) / 1000;
-        }
-
-        updatePluginStatus();
-
-        // Log different messages based on exit code
-        if (pluginStatus.exitCode === 0) {
-          addLogEntry(`Plugin completed successfully after ${pluginStatus.duration.toFixed(2)}s with ${pluginStatus.eventCount} events processed`, 'success');
+        if (pluginStatus.running) {
+          // Running status
+          indicator.className = "status running";
+          text.textContent = "Running";
+          startButton.style.display = "none";
+          stopButton.style.display = "inline-block";
         } else {
-          addLogEntry(`Plugin stopped with exit code ${pluginStatus.exitCode}${pluginStatus.signal ? `, signal: ${pluginStatus.signal}` : ''} after ${pluginStatus.duration.toFixed(2)}s`, 'info');
+          if (pluginStatus.exitCode === 0) {
+            // Success status
+            indicator.className = "status success";
+            text.textContent = "Completed Successfully";
+          } else if (pluginStatus.exitCode === null) {
+            // Never started
+            indicator.className = "status stopped";
+            text.textContent = "Stopped";
+          } else {
+            // Error status
+            indicator.className = "status error";
+            text.textContent = `Exited (Code: ${pluginStatus.exitCode})`;
+          }
+          startButton.style.display = "inline-block";
+          stopButton.style.display = "none";
         }
 
-        // Update metadata display
+        // Update the metadata display
         updateMetadataDisplay();
-      });
+      }
 
-      socket.on('plugin-log', (log) => {
-        addLogEntry(log.message, log.type);
-      });
+      // Function to update metadata display
+      function updateMetadataDisplay() {
+        const metadataSection = document.getElementById("plugin-metadata");
+        if (!metadataSection) return;
 
-      socket.on('event-triggered', (data) => {
-        addLogEntry(`Event triggered: ${data.event}`, 'info');
-      });
+        let metadataHtml = "<h3>Plugin Metadata</h3>";
 
-      // Request plugin info
-      socket.emit('get-plugin-info');
-    });
-
-    function updatePluginStatus() {
-      const indicator = document.getElementById('status-indicator');
-      const text = document.getElementById('status-text');
-      const startButton = document.getElementById('start-button');
-      const stopButton = document.getElementById('stop-button');
-      const metadataSection = document.getElementById('plugin-metadata');
-
-      if (pluginStatus.running) {
-        // Running status
-        indicator.className = 'status running';
-        text.textContent = 'Running';
-        startButton.style.display = 'none';
-        stopButton.style.display = 'inline-block';
-      } else {
-        if (pluginStatus.exitCode === 0) {
-          // Success status
-          indicator.className = 'status success';
-          text.textContent = 'Completed Successfully';
-        } else if (pluginStatus.exitCode === null) {
-          // Never started
-          indicator.className = 'status stopped';
-          text.textContent = 'Stopped';
-        } else {
-          // Error status
-          indicator.className = 'status error';
-          text.textContent = `Exited (Code: ${pluginStatus.exitCode})`;
+        if (pluginStatus.configInfo) {
+          metadataHtml += `<p><strong>Name:</strong> ${pluginStatus.configInfo.name || "Unknown"}</p>`;
+          if (pluginStatus.configInfo.version) {
+            metadataHtml += `<p><strong>Version:</strong> ${pluginStatus.configInfo.version}</p>`;
+          }
+          if (
+            pluginStatus.configInfo.features &&
+            pluginStatus.configInfo.features.length
+          ) {
+            metadataHtml += `<p><strong>Features:</strong> ${pluginStatus.configInfo.features.join(", ")}</p>`;
+          }
         }
-        startButton.style.display = 'inline-block';
-        stopButton.style.display = 'none';
-      }
 
-      // Update the metadata display
-      updateMetadataDisplay();
-    }
-
-    // Function to update metadata display
-    function updateMetadataDisplay() {
-      const metadataSection = document.getElementById('plugin-metadata');
-      if (!metadataSection) return;
-
-      let metadataHtml = '<h3>Plugin Metadata</h3>';
-
-      if (pluginStatus.configInfo) {
-        metadataHtml += `<p><strong>Name:</strong> ${pluginStatus.configInfo.name || 'Unknown'}</p>`;
-        if (pluginStatus.configInfo.version) {
-          metadataHtml += `<p><strong>Version:</strong> ${pluginStatus.configInfo.version}</p>`;
+        if (pluginStatus.startTime) {
+          metadataHtml += `<p><strong>Started:</strong> ${formatTime(pluginStatus.startTime)}</p>`;
         }
-        if (pluginStatus.configInfo.features && pluginStatus.configInfo.features.length) {
-          metadataHtml += `<p><strong>Features:</strong> ${pluginStatus.configInfo.features.join(', ')}</p>`;
+
+        if (pluginStatus.endTime) {
+          metadataHtml += `<p><strong>Ended:</strong> ${formatTime(pluginStatus.endTime)}</p>`;
         }
+
+        if (pluginStatus.duration !== null) {
+          metadataHtml += `<p><strong>Duration:</strong> ${pluginStatus.duration.toFixed(2)}s</p>`;
+        }
+
+        if (pluginStatus.eventCount > 0) {
+          metadataHtml += `<p><strong>Events processed:</strong> ${pluginStatus.eventCount}</p>`;
+        }
+
+        if (pluginStatus.exitCode !== null) {
+          metadataHtml += `<p><strong>Exit code:</strong> ${pluginStatus.exitCode}</p>`;
+        }
+
+        if (pluginStatus.signal) {
+          metadataHtml += `<p><strong>Signal:</strong> ${pluginStatus.signal}</p>`;
+        }
+
+        metadataSection.innerHTML = metadataHtml;
       }
 
-      if (pluginStatus.startTime) {
-        metadataHtml += `<p><strong>Started:</strong> ${formatTime(pluginStatus.startTime)}</p>`;
+      // Helper function to format time
+      function formatTime(date) {
+        if (!date) return "N/A";
+        return date.toLocaleTimeString();
       }
 
-      if (pluginStatus.endTime) {
-        metadataHtml += `<p><strong>Ended:</strong> ${formatTime(pluginStatus.endTime)}</p>`;
+      function startPlugin() {
+        socket.emit("start-plugin");
       }
 
-      if (pluginStatus.duration !== null) {
-        metadataHtml += `<p><strong>Duration:</strong> ${pluginStatus.duration.toFixed(2)}s</p>`;
+      function stopPlugin() {
+        socket.emit("stop-plugin");
       }
 
-      if (pluginStatus.eventCount > 0) {
-        metadataHtml += `<p><strong>Events processed:</strong> ${pluginStatus.eventCount}</p>`;
+      function triggerEvent(event) {
+        const payload = customPayloads[event] || defaultPayloads[event] || {};
+        socket.emit("trigger-event", { event, payload });
+
+        // Update payload editor with current event's payload
+        const payloadEditor = document.getElementById("payload-editor");
+        payloadEditor.value = JSON.stringify(
+          customPayloads[event] || defaultPayloads[event] || {},
+          null,
+          2,
+        );
+
+        // Switch to logs tab
+        document
+          .querySelectorAll(".tab")
+          .forEach((t) => t.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((c) => c.classList.remove("active"));
+        document.querySelector('.tab[data-tab="logs"]').classList.add("active");
+        document.getElementById("logs-tab").classList.add("active");
       }
 
-      if (pluginStatus.exitCode !== null) {
-        metadataHtml += `<p><strong>Exit code:</strong> ${pluginStatus.exitCode}</p>`;
+      function addLogEntry(message, type = "info") {
+        const logContainer = document.getElementById("log-container");
+        const entry = document.createElement("div");
+        entry.className = `log-entry log-${type}`;
+        entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        logContainer.appendChild(entry);
+        logContainer.scrollTop = logContainer.scrollHeight;
       }
-
-      if (pluginStatus.signal) {
-        metadataHtml += `<p><strong>Signal:</strong> ${pluginStatus.signal}</p>`;
-      }
-
-      metadataSection.innerHTML = metadataHtml;
-    }
-
-    // Helper function to format time
-    function formatTime(date) {
-      if (!date) return 'N/A';
-      return date.toLocaleTimeString();
-    }
-
-    function startPlugin() {
-      socket.emit('start-plugin');
-    }
-
-    function stopPlugin() {
-      socket.emit('stop-plugin');
-    }
-
-    function triggerEvent(event) {
-      const payload = customPayloads[event] || defaultPayloads[event] || {};
-      socket.emit('trigger-event', { event, payload });
-
-      // Update payload editor with current event's payload
-      const payloadEditor = document.getElementById('payload-editor');
-      payloadEditor.value = JSON.stringify(customPayloads[event] || defaultPayloads[event] || {}, null, 2);
-
-      // Switch to logs tab
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      document.querySelector('.tab[data-tab="logs"]').classList.add('active');
-      document.getElementById('logs-tab').classList.add('active');
-    }
-
-    function addLogEntry(message, type = 'info') {
-      const logContainer = document.getElementById('log-container');
-      const entry = document.createElement('div');
-      entry.className = `log-entry log-${type}`;
-      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-      logContainer.appendChild(entry);
-      logContainer.scrollTop = logContainer.scrollHeight;
-    }
-  </script>
-</body>
+    </script>
+  </body>
 </html>

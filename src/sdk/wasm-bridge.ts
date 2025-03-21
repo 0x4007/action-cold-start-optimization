@@ -3,7 +3,7 @@
  * Connects JavaScript and Rust with a clean interface
  */
 
-import { instantiateWasmFromBase64 } from '../wasm-inline.js';
+import { instantiateWasmFromBase64 } from "../wasm-inline.js";
 
 /**
  * Interface for WASM exports
@@ -33,8 +33,8 @@ export async function initWasm(wasmBase64: string): Promise<void> {
       console: {
         log: (ptr: number, len: number) => {
           console.log("WASM log:", ptr, len);
-        }
-      }
+        },
+      },
     };
 
     // Instantiate WASM module

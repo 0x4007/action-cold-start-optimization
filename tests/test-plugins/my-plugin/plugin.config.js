@@ -4,24 +4,25 @@
  */
 
 module.exports = {
-  name: 'Issue Auto-Labeler',
-  description: 'Automatically labels issues based on content',
-  author: 'Your Name',
+  name: "Issue Auto-Labeler",
+  description: "Automatically labels issues based on content",
+  author: "Your Name",
 
   action: {
-    icon: 'tag',
-    color: 'green',
+    icon: "tag",
+    color: "green",
     inputs: {
       labelMapping: {
-        description: 'JSON mapping of keywords to labels',
+        description: "JSON mapping of keywords to labels",
         required: false,
-        default: '{"bug":["error","exception","fail"],"enhancement":["improve","enhancement","feature"]}'
-      }
-    }
+        default:
+          '{"bug":["error","exception","fail"],"enhancement":["improve","enhancement","feature"]}',
+      },
+    },
   },
 
   // Event handlers
   events: {
-    'issues.opened': './src/handlers/issue-opened.js'
-  }
+    "issues.opened": "./src/handlers/issue-opened.js",
+  },
 };

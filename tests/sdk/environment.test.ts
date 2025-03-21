@@ -1,5 +1,8 @@
 import { describe, test, expect, beforeEach, afterEach } from "bun:test";
-import { getEnvironment, PluginEnvironment } from "../../src/sdk/environment.js";
+import {
+  getEnvironment,
+  PluginEnvironment,
+} from "../../src/sdk/environment.js";
 
 describe("Environment Module", () => {
   // Backup of original environment
@@ -19,7 +22,7 @@ describe("Environment Module", () => {
     INPUT_KERNEL_PUBLIC_KEY: "mock-public-key",
     INPUT_LOG_LEVEL: "debug",
     INPUT_SUPABASE_URL: "https://example.supabase.co",
-    INPUT_SUPABASE_KEY: "mock-supabase-key"
+    INPUT_SUPABASE_KEY: "mock-supabase-key",
   };
 
   // Environment variable mapping
@@ -36,7 +39,7 @@ describe("Environment Module", () => {
     INPUT_KERNEL_PUBLIC_KEY: "kernelPublicKey",
     INPUT_LOG_LEVEL: "logLevel",
     INPUT_SUPABASE_URL: "supabaseUrl",
-    INPUT_SUPABASE_KEY: "supabaseKey"
+    INPUT_SUPABASE_KEY: "supabaseKey",
   };
 
   beforeEach(() => {
@@ -44,8 +47,8 @@ describe("Environment Module", () => {
     process.env = { ...originalEnv };
 
     // Clear any mapped environment variables
-    Object.keys(envMapping).forEach(key => {
-      delete process.env[key.replace('INPUT_', '')];
+    Object.keys(envMapping).forEach((key) => {
+      delete process.env[key.replace("INPUT_", "")];
     });
   });
 
