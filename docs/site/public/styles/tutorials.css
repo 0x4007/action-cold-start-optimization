@@ -1,0 +1,265 @@
+/* Tutorials CSS */
+
+/* Tutorial container */
+.tutorial-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: minmax(250px, 1fr) minmax(200px, 1fr);
+  gap: 1rem;
+  margin: 2rem 0;
+  height: 600px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: var(--vp-c-bg-soft, #252529);
+}
+
+/* Tutorial Components */
+.tutorial-editor,
+.tutorial-steps,
+.tutorial-output,
+.tutorial-visualization {
+  background-color: var(--vp-c-bg, #1e1e20);
+  border-radius: 6px;
+  overflow: auto;
+  padding: 0.5rem;
+  position: relative;
+}
+
+/* Component Positions */
+.tutorial-editor {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.tutorial-steps {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.tutorial-output {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.tutorial-visualization {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+/* Tutorial Component Headers */
+.tutorial-header {
+  padding: 0.5rem;
+  font-weight: bold;
+  border-bottom: 1px solid var(--vp-c-divider, #333);
+  background-color: var(--vp-c-bg-soft, #252529);
+  margin-top: 0;
+}
+
+/* Editor Styles */
+.editor-tabs {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--vp-c-divider, #333);
+  background-color: var(--vp-c-bg-soft, #252529);
+}
+
+.editor-tab {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-right: 1px solid var(--vp-c-divider, #333);
+  font-family: monospace;
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
+.editor-tab.active {
+  background-color: var(--vp-c-bg, #1e1e20);
+  border-bottom: 2px solid var(--vp-c-brand, #3b82f6);
+  font-weight: bold;
+}
+
+.editor-textarea {
+  width: 100%;
+  height: calc(100% - 70px);
+  padding: 0.75rem;
+  border: none;
+  background-color: var(--vp-c-bg, #1e1e20);
+  color: var(--vp-c-text, #e5e7eb);
+  font-family: monospace;
+  font-size: 0.9em;
+  line-height: 1.5;
+  resize: none;
+}
+
+.editor-controls {
+  padding: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+  background-color: var(--vp-c-bg-soft, #252529);
+  border-top: 1px solid var(--vp-c-divider, #333);
+}
+
+/* Steps Styles */
+.steps-container {
+  padding: 0.5rem;
+  overflow-y: auto;
+  height: calc(100% - 40px);
+}
+
+.tutorial-step {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-left: 3px solid var(--vp-c-divider, #333);
+  background-color: var(--vp-c-bg-soft, #252529);
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.tutorial-step.active {
+  border-left-color: var(--vp-c-brand, #3b82f6);
+}
+
+.step-title {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.step-instructions {
+  font-size: 0.95em;
+  line-height: 1.5;
+}
+
+/* Controls */
+.tutorial-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--vp-c-divider, #333);
+}
+
+.tutorial-btn {
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  background-color: var(--vp-c-brand, #3b82f6);
+  color: white;
+  border: none;
+}
+
+.tutorial-btn:hover {
+  background-color: var(--vp-c-brand-dark, #2563eb);
+}
+
+.tutorial-btn:disabled {
+  background-color: var(--vp-c-gray-light-3, #4b5563);
+  color: var(--vp-c-text-2, #9ca3af);
+  cursor: not-allowed;
+}
+
+/* Output Styles */
+.output-area {
+  padding: 0.5rem;
+  height: calc(100% - 40px);
+  overflow: auto;
+}
+
+.output-timestamp {
+  float: right;
+  font-size: 0.8em;
+  color: var(--vp-c-text-2, #9ca3af);
+}
+
+.output-content {
+  background-color: var(--vp-c-bg-soft, #252529);
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin: 0.5rem 0;
+  font-family: monospace;
+  font-size: 0.9em;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Visualization Styles */
+.visualization-placeholder {
+  padding: 1rem;
+  text-align: center;
+  color: var(--vp-c-text-2, #9ca3af);
+}
+
+.metrics-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+.metric-card {
+  background-color: var(--vp-c-bg-soft, #252529);
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.metric-title {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  font-size: 0.9em;
+}
+
+.metric-value {
+  font-size: 1.5em;
+  margin-bottom: 0.5rem;
+  color: var(--vp-c-brand, #3b82f6);
+}
+
+.metric-rating {
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.star {
+  color: var(--vp-c-gray-light-3, #4b5563);
+}
+
+.star.filled {
+  color: var(--vp-c-yellow, #f59e0b);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .tutorial-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, auto);
+    height: auto;
+  }
+
+  .tutorial-editor,
+  .tutorial-steps,
+  .tutorial-output,
+  .tutorial-visualization {
+    grid-column: 1;
+    min-height: 300px;
+  }
+
+  .tutorial-editor {
+    grid-row: 1;
+  }
+
+  .tutorial-steps {
+    grid-row: 2;
+  }
+
+  .tutorial-output {
+    grid-row: 3;
+  }
+
+  .tutorial-visualization {
+    grid-row: 4;
+  }
+}

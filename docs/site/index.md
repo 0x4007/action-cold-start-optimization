@@ -10,6 +10,9 @@ hero:
       text: Get Started
       link: /getting-started/
     - theme: alt
+      text: Interactive Tutorials
+      link: /tutorials/
+    - theme: alt
       text: View Examples
       link: /examples/
     - theme: alt
@@ -72,6 +75,10 @@ For performance-focused developers with Rust knowledge who want maximum performa
 ## Getting Started
 
 Ready to build your first WebAssembly-optimized GitHub Action? Head over to our [Getting Started Guide](/getting-started/) to set up your development environment and create your first plugin.
+
+## Interactive Tutorials
+
+Learn by doing with our [Interactive Tutorials](/tutorials/). These step-by-step guides feature interactive code editors and live visualization to help you master the concepts of WebAssembly-optimized GitHub Actions development.
 
 ## Examples
 
