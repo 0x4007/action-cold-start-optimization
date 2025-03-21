@@ -7,6 +7,10 @@ export default defineConfig({
 
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }],
+    ['link', { rel: 'stylesheet', href: '/styles/tutorials.css' }],
+    ['link', { rel: 'stylesheet', href: '/styles/tutorial-interactive.css' }],
+    ['script', { src: '/js/tutorial-interactive.js' }],
+    ['script', { src: '/js/tutorial-fix.js' }],
     ['meta', { name: 'theme-color', content: '#3eaf7c' }],
     ['meta', { name: 'apple-mobile-web-app-capable', content: 'yes' }],
     ['meta', { name: 'apple-mobile-web-app-status-bar-style', content: 'black' }]
@@ -18,6 +22,7 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Getting Started', link: '/getting-started/' },
       { text: 'Guides', link: '/guides/' },
+      { text: 'Tutorials', link: '/tutorials/' },
       { text: 'API', link: '/api/' },
       { text: 'Examples', link: '/examples/' }
     ],
@@ -94,6 +99,17 @@ export default defineConfig({
             { text: 'Repository Statistics', link: '/examples/repo-statistics' },
             { text: 'External Service', link: '/examples/external-service' },
             { text: 'Custom UI', link: '/examples/custom-ui' }
+          ]
+        }
+      ],
+      '/tutorials/': [
+        {
+          text: 'Interactive Tutorials',
+          items: [
+            { text: 'Overview', link: '/tutorials/' },
+            { text: 'First Plugin', link: '/tutorials/beginner/first-plugin/' },
+            { text: 'Event Handling', link: '/tutorials/beginner/event-handling/' },
+            { text: 'GitHub API', link: '/tutorials/beginner/github-api/' }
           ]
         }
       ]

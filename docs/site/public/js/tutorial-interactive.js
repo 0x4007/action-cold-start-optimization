@@ -5,25 +5,41 @@
  * including code editing, step navigation, output display, and performance visualization.
  */
 
+// Wait for the DOM to be fully loaded before initializing tutorials
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('Interactive Tutorial Framework initialized');
+  console.log('Interactive Tutorial Framework initializing...');
+  initializeTutorials();
+});
+
+// Allow re-initialization if needed
+window.initializeInteractiveTutorials = initializeTutorials;
+
+// Main initialization function
+function initializeTutorials() {
+  console.log('Looking for tutorial containers...');
 
   // Find all tutorial containers on the page
   const tutorialContainers = document.querySelectorAll('.tutorial-container');
 
   if (tutorialContainers.length === 0) {
-    console.log('No tutorial containers found on this page');
+    console.log('No tutorial containers found on this page. Will try again shortly.');
+    // Try again after a short delay in case the page is still loading
+    setTimeout(initializeTutorials, 500);
     return;
   }
 
-  console.log(`Found ${tutorialContainers.length} tutorial containers`);
+  console.log(`Found ${tutorialContainers.length} tutorial containers. Initializing...`);
 
   // Initialize each tutorial container
   tutorialContainers.forEach(container => {
     const tutorialId = container.dataset.tutorialId || container.id;
+    console.log(`Initializing tutorial: ${tutorialId}`);
     initializeTutorial(container, tutorialId);
   });
-});
+
+  // Add a global class to indicate tutorials are loaded
+  document.body.classList.add('tutorials-initialized');
+}
 
 /**
  * Initialize a tutorial container with all required components
@@ -131,28 +147,6 @@ function initializeEditor(panel, tutorialId) {
   editor.value = files[filenames[0]];
   editorContent.appendChild(editor);
 
-  // Add run button
-  const controlsContainer = document.createElement('div');
-  controlsContainer.className = 'editor-controls';
-
-  const runButton = document.createElement('button');
-  runButton.className = 'tutorial-btn';
-  runButton.textContent = 'Run Code';
-  runButton.addEventListener('click', function() {
-    const container = panel.closest('.tutorial-container');
-    const outputPanel = container.querySelector('.tutorial-output');
-    const visualizationPanel = container.querySelector('.tutorial-visualization');
-
-    if (outputPanel && visualizationPanel) {
-      simulateCodeExecution(outputPanel, visualizationPanel);
-    }
-  });
-
-  controlsContainer.appendChild(runButton);
-  editorContent.appendChild(controlsContainer);
-
-  // Add to panel
-  panel.querySelector('.tutorial-editor-content').appendChild(editorContent);
 }
 
 /**

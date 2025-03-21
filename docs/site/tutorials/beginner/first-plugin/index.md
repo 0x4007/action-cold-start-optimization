@@ -31,9 +31,34 @@ Before starting this tutorial, make sure you:
 
 Try our interactive tutorial below to build your first plugin step by step:
 
-<div class="tutorial-container" data-tutorial-id="first-plugin">
-  <!-- The interactive components will be inserted here by the JavaScript -->
-</div>
+::: tip Loading Tutorial
+If you don't see the interactive tutorial below, please ensure JavaScript is enabled in your browser.
+:::
+
+::: raw
+<div class="tutorial-container" data-tutorial-id="first-plugin"></div>
+
+<script>
+// Inline script to ensure tutorial properly initializes
+document.addEventListener('DOMContentLoaded', function() {
+  const initTutorial = function() {
+    const container = document.querySelector('.tutorial-container');
+    if (container && container.children.length === 0) {
+      console.log('Initializing tutorial from inline script');
+      if (window.initializeTutorialContainer) {
+        window.initializeTutorialContainer(container);
+      }
+    }
+  };
+
+  // Try immediately
+  initTutorial();
+
+  // And again after short delay
+  setTimeout(initTutorial, 1000);
+});
+</script>
+:::
 
 ## Step 1: Understanding the Plugin Structure
 

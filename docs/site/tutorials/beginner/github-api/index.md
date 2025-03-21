@@ -30,9 +30,34 @@ Before starting this tutorial, make sure you:
 
 Try our interactive tutorial below to build your GitHub API plugin:
 
-<div class="tutorial-container" data-tutorial-id="github-api">
-  <!-- The interactive components will be inserted here by the JavaScript -->
-</div>
+::: tip Loading Tutorial
+If you don't see the interactive tutorial below, please ensure JavaScript is enabled in your browser.
+:::
+
+::: raw
+<div class="tutorial-container" data-tutorial-id="github-api"></div>
+
+<script>
+// Inline script to ensure tutorial properly initializes
+document.addEventListener('DOMContentLoaded', function() {
+  const initTutorial = function() {
+    const container = document.querySelector('.tutorial-container');
+    if (container && container.children.length === 0) {
+      console.log('Initializing tutorial from inline script');
+      if (window.initializeTutorialContainer) {
+        window.initializeTutorialContainer(container);
+      }
+    }
+  };
+
+  // Try immediately
+  initTutorial();
+
+  // And again after short delay
+  setTimeout(initTutorial, 1000);
+});
+</script>
+:::
 
 ## Step 1: Working with the GitHub API Client
 

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial Test Page</title>
+  <!-- Include the CSS files first -->
+  <link rel="stylesheet" href="styles/tutorial-interactive.css">
+  <link rel="stylesheet" href="styles/tutorials.css">
+
+  <style>
+    /* Basic styling for the test page */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #333;
+    }
+    h1, h2 {
+      color: #0366d6;
+    }
+    :root {
+      --vp-c-bg: #ffffff;
+      --vp-c-bg-soft: #f6f8fa;
+      --vp-c-divider: #e1e4e8;
+      --vp-c-text: #24292e;
+      --vp-c-text-2: #6a737d;
+      --vp-c-brand: #0366d6;
+      --vp-c-brand-dark: #044289;
+      --vp-c-gray-light-3: #d1d5da;
+      --vp-c-yellow: #f1e05a;
+    }
+    .dark {
+      --vp-c-bg: #0d1117;
+      --vp-c-bg-soft: #161b22;
+      --vp-c-divider: #30363d;
+      --vp-c-text: #c9d1d9;
+      --vp-c-text-2: #8b949e;
+      --vp-c-brand: #58a6ff;
+      --vp-c-brand-dark: #1f6feb;
+      --vp-c-gray-light-3: #6e7681;
+      --vp-c-yellow: #f1e05a;
+    }
+    /* Theme toggle button */
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--vp-c-brand);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" onclick="document.body.classList.toggle('dark')">Toggle Dark Mode</button>
+
+  <h1>First Plugin Tutorial Test</h1>
+  <p>This page tests the interactive tutorial functionality directly without VitePress.</p>
+
+  <div class="tutorial-container" data-tutorial-id="first-plugin">
+    <!-- The interactive components will be inserted here by the JavaScript -->
+  </div>
+
+  <!-- Include the tutorial JavaScript files -->
+  <script src="js/tutorial-init.js"></script>
+  <script src="js/tutorial-interactive.js"></script>
+
+  <script>
+    // This ensures that window.onload and document.ready events have already fired
+    // before we attempt to initialize the tutorial
+    setTimeout(function() {
+      console.log('Manual initialization of tutorials');
+      const tutorialContainers = document.querySelectorAll('.tutorial-container');
+      tutorialContainers.forEach(container => {
+        initializeTutorialContainer(container);
+      });
+    }, 500);
+  </script>
+</body>
+</html>
