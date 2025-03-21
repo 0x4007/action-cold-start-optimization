@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "dist/sdk",
     "declaration": true,
-    "declarationDir": "dist/sdk/types"
+    "declarationDir": "dist/sdk"
   },
   "include": ["src/sdk/**/*"],
   "exclude": ["node_modules", "pkg", "wasm", "templates"]

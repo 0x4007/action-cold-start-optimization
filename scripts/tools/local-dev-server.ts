@@ -383,6 +383,14 @@ const dashboardHtml = `
 // Write the dashboard HTML to the public directory
 fs.writeFileSync(path.join(publicDir, 'index.html'), dashboardHtml);
 
+// Basic validation of the JavaScript in the template
+try {
+  // This won't catch all errors, but it can catch syntax errors
+  new Function(dashboardHtml.match(/<script>([\s\S]*?)<\/script>/)?.[1] || '');
+} catch (error) {
+  console.warn(chalk.yellow(`Warning: JavaScript in HTML template may have errors: ${error.message}`));
+}
+
 // Sample event payloads
 const eventPayloads = {
   'issue.opened': {

@@ -1,6 +1,9 @@
+// Import handlers
+import issueOpened from './issue-opened.ts';
+import externalService from './external-service.ts';
+
 // Export all handlers
-export { default as issueOpened } from './issue-opened.js';
-export { default as externalService } from './external-service.js';
+export { issueOpened, externalService };
 
 // Export named handlers for use in index.ts
 export const handlers = {

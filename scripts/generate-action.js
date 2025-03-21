@@ -20,13 +20,13 @@ const outputPath = path.join(pluginDir, 'action.yml');
 // Load the plugin configuration
 async function loadConfig() {
   if (fs.existsSync(jsConfigPath)) {
-    return await import(jsConfigPath);
+    return await import(`file://${path.resolve(jsConfigPath)}`);
   } else if (fs.existsSync(tsConfigPath)) {
     // For TypeScript config, we need to use ts-node
     try {
       // Try to use ts-node if available
       await import('ts-node/register');
-      return await import(tsConfigPath);
+      return await import(`file://${path.resolve(tsConfigPath)}`);
     } catch (error) {
       console.error('Error loading TypeScript configuration:', error);
       console.error('Make sure ts-node is installed: npm install -g ts-node');

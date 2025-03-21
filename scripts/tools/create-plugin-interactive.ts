@@ -217,6 +217,13 @@ async function main() {
     handlers.push(...featureDescriptions[feature].handlers);
   });
 
+  // Add a default handler if no features are selected
+  if (handlers.length === 0) {
+    // Add a default handler for issue.opened
+    events.push('issue.opened');
+    handlers.push('issue-opened');
+  }
+
   // Create a mapping of events to handlers
   const eventHandlerMap: Record<string, string> = {};
   events.forEach((event, index) => {
@@ -358,12 +365,18 @@ export const handlers = {
 
     // Create handlers/index.ts
     const handlersIndexContent = `// Export all handlers
-${handlers.map(handler => `export { default as ${handlerNameMap[handler]} } from './${handler}.js';`).join('\n')}
+${handlers.map(handler => `export { default as ${handlerNameMap[handler]} } from './${handler}.ts';`).join('\n')}
 
 // Export named handlers for use in index.ts
 export const handlers = {
   ${events.map(event => `'${event}': ${handlerNameMap[eventHandlerMap[event]]}`).join(',\n  ')}
 };`;
+
+    // Ensure handlers directory exists
+    const handlersDir = path.join(destinationDir, 'src/handlers');
+    if (!fs.existsSync(handlersDir)) {
+      fs.mkdirSync(handlersDir, { recursive: true });
+    }
 
     fs.writeFileSync(path.join(destinationDir, 'src/handlers/index.ts'), handlersIndexContent);
     console.log(`Created ${path.join(destinationDir, 'src/handlers/index.ts')}`);
@@ -415,12 +428,18 @@ export const handlers = {
 
     // Create handlers/index.ts
     const handlersIndexContent = `// Export all handlers
-${handlers.map(handler => `export { default as ${handlerNameMap[handler]} } from './${handler}.js';`).join('\n')}
+${handlers.map(handler => `export { default as ${handlerNameMap[handler]} } from './${handler}.ts';`).join('\n')}
 
 // Export named handlers for use in index.ts
 export const handlers = {
   ${events.map(event => `'${event}': ${handlerNameMap[eventHandlerMap[event]]}`).join(',\n  ')}
 };`;
+
+    // Ensure handlers directory exists
+    const handlersDir = path.join(destinationDir, 'src/handlers');
+    if (!fs.existsSync(handlersDir)) {
+      fs.mkdirSync(handlersDir, { recursive: true });
+    }
 
     fs.writeFileSync(path.join(destinationDir, 'src/handlers/index.ts'), handlersIndexContent);
     console.log(`Created ${path.join(destinationDir, 'src/handlers/index.ts')}`);
@@ -440,6 +459,20 @@ export const handlers = {
   try {
     // Build the SDK first
     await execAsync('npm run build:sdk');
+
+    // Create symlink to SDK
+    const sdkPath = path.resolve(rootDir, 'dist/sdk');
+    const pluginNodeModules = path.join(destinationDir, 'node_modules');
+    const pluginSdkPath = path.join(pluginNodeModules, 'plugin-sdk');
+
+    if (!fs.existsSync(pluginNodeModules)) {
+      fs.mkdirSync(pluginNodeModules, { recursive: true });
+    }
+
+    if (!fs.existsSync(pluginSdkPath)) {
+      fs.symlinkSync(sdkPath, pluginSdkPath, 'dir');
+      console.log(chalk.green(`Created symlink to SDK at ${pluginSdkPath}`));
+    }
 
     // Install plugin dependencies
     await execAsync(`cd ${destinationDir} && npm install`);

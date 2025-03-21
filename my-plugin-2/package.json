@@ -1,18 +1,19 @@
 {
-  "name": "my-plugin",
+  "name": "issue-auto-labeler",
   "version": "1.0.0",
-  "description": "A GitHub Action plugin",
+  "description": "GitHub Action for automatically labeling issues based on content",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "test": "echo \"No tests yet\" && exit 0"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "github",
     "action",
     "plugin",
-    "wasm"
+    "issues",
+    "labels"
   ],
   "author": "Your Name",
   "license": "MIT",
