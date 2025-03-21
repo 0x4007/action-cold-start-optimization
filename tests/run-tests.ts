@@ -1,11 +1,12 @@
 #!/usr/bin/env bun
 
 /**
- * Comprehensive test runner for the Phase 1 deliverables
+ * Comprehensive test runner for Phase 1 and Phase 2 deliverables
  * This script:
- * 1. Runs all unit tests
- * 2. Tests end-to-end plugin flow
- * 3. Reports results
+ * 1. Runs all SDK unit tests
+ * 2. Tests end-to-end plugin flows
+ * 3. Validates Phase 2 components (interactive generator, dev server, etc.)
+ * 4. Reports results
  */
 
 import { execSync } from 'child_process';
@@ -18,15 +19,30 @@ console.log('==================================================\n');
 
 // Test phases with descriptions
 const testPhases = [
+  // Phase 1 Tests
   {
     name: 'SDK Unit Tests',
     command: 'bun test tests/sdk',
     description: 'Testing all SDK components: events, context, environment, WASM bridge, and utilities'
   },
+
+  // Phase 2 Tests - Core Components
   {
     name: 'Simple End-to-End Plugin Flow',
-    command: 'bun run test-plugin-flow-simple.ts',
+    command: 'bun run tests/test-plugin-flow-simple.ts',
     description: 'Testing plugin UI flow with mock GitHub events',
+    requiresScreenshots: true
+  },
+  {
+    name: 'Complete Plugin Flow',
+    command: 'bun run tests/test-plugin-flow.ts',
+    description: 'Testing complete plugin generation, server startup, and UI interaction',
+    requiresScreenshots: true
+  },
+  {
+    name: 'Plugin Flow with SDK Fix',
+    command: 'bun run tests/test-plugin-flow-with-sdk-fix.ts',
+    description: 'Testing plugin flow with SDK integration fixes',
     requiresScreenshots: true
   }
 ];
