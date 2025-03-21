@@ -15,6 +15,7 @@ import { spawn, ChildProcess, execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
+import http from 'http';
 import puppeteer, { Browser, Page } from 'puppeteer';
 
 // Get the directory name of the current module
@@ -22,9 +23,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Configuration
 const PLUGIN_NAME = 'test-plugin-flow-' + Date.now();
-const PLUGIN_DIR = path.join(process.cwd(), PLUGIN_NAME);
-const SERVER_PORT = 3000;
+const PLUGIN_DIR = path.join(process.cwd(), 'plugins', PLUGIN_NAME);
+const SERVER_PORT = 3000 + Math.floor(Math.random() * 1000); // Use a random port to avoid conflicts
 const SERVER_URL = `http://localhost:${SERVER_PORT}`;
+
+console.log(`Using port ${SERVER_PORT} for the development server`);
 
 // Cleanup function to remove the test plugin directory
 function cleanup() {
@@ -95,11 +98,49 @@ async function createPlugin(): Promise<boolean> {
   }
 }
 
+// Helper function to check if a port is in use
+async function isPortInUse(port: number): Promise<boolean> {
+  try {
+    // Try to create a server on the port
+    const testServer = http.createServer();
+
+    return new Promise((resolve) => {
+      testServer.once('error', (err: any) => {
+        // If we get an EADDRINUSE error, the port is in use
+        if (err.code === 'EADDRINUSE') {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+
+      testServer.once('listening', () => {
+        // If we can listen, the port is free
+        testServer.close(() => {
+          resolve(false);
+        });
+      });
+
+      testServer.listen(port);
+    });
+  } catch (error) {
+    console.error(`Error checking port ${port}:`, error);
+    return false;
+  }
+}
+
 // Step 2: Start the local development server
 async function startDevServer(): Promise<ChildProcess | null> {
   console.log(`\n=== Step 2: Starting development server ===`);
 
   try {
+    // Check if the port is already in use
+    const portInUse = await isPortInUse(SERVER_PORT);
+    if (portInUse) {
+      console.error(`Port ${SERVER_PORT} is already in use. Please choose a different port.`);
+      return null;
+    }
+
     // Start the development server
     const serverCmd = `bun run scripts/tools/local-dev-server.ts --plugin-dir ${PLUGIN_NAME} --port ${SERVER_PORT}`;
     console.log(`Executing: ${serverCmd}`);
@@ -171,7 +212,7 @@ async function testUI(): Promise<boolean> {
     console.log(`Plugin name displayed in UI: ${pluginName}`);
 
     // Take a screenshot of the initial state
-    await page.screenshot({ path: 'test-plugin-initial.png' });
+    await page.screenshot({ path: 'screenshots/test-plugin-initial.png' });
     console.log(`Screenshot saved as test-plugin-initial.png`);
 
     // Test 1: Start the plugin
@@ -182,7 +223,7 @@ async function testUI(): Promise<boolean> {
     await sleep(3000);
 
     // Take a screenshot after starting the plugin
-    await page.screenshot({ path: 'test-plugin-started.png' });
+    await page.screenshot({ path: 'screenshots/test-plugin-started.png' });
     console.log(`Screenshot saved as test-plugin-started.png`);
 
     // Check the status element for verification
@@ -209,7 +250,7 @@ async function testUI(): Promise<boolean> {
     await sleep(500);
 
     // Take a screenshot of the events tab
-    await page.screenshot({ path: 'test-plugin-events-tab.png' });
+    await page.screenshot({ path: 'screenshots/test-plugin-events-tab.png' });
     console.log(`Screenshot saved as test-plugin-events-tab.png`);
 
     // Click the issue.opened event button
@@ -220,7 +261,7 @@ async function testUI(): Promise<boolean> {
     await sleep(1000);
 
     // Take a screenshot after triggering the event
-    await page.screenshot({ path: 'test-plugin-event-triggered.png' });
+    await page.screenshot({ path: 'screenshots/test-plugin-event-triggered.png' });
     console.log(`Screenshot saved as test-plugin-event-triggered.png`);
 
     // We don't try to stop the plugin because it should have exited on its own
@@ -228,7 +269,7 @@ async function testUI(): Promise<boolean> {
 
     // Take a final screenshot to show the completed status
     await sleep(2000);
-    await page.screenshot({ path: 'test-plugin-final.png' });
+    await page.screenshot({ path: 'screenshots/test-plugin-final.png' });
     console.log(`Screenshot saved as test-plugin-final.png`);
 
     // Check the final status - it should show "Completed Successfully" if our changes worked

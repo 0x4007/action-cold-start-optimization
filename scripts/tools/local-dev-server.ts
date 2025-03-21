@@ -29,7 +29,15 @@ program
 
 const options = program.opts();
 const PORT = parseInt(options.port, 10);
-const PLUGIN_DIR = path.resolve(process.cwd(), options.pluginDir);
+
+// Check if the plugin directory provided is a full path or just a name
+let pluginPath = options.pluginDir;
+if (!path.isAbsolute(pluginPath) && !pluginPath.startsWith('./') && !pluginPath.startsWith('../')) {
+  // If it's just a name, assume it's in the plugins directory
+  pluginPath = path.join('plugins', pluginPath);
+}
+
+const PLUGIN_DIR = path.resolve(process.cwd(), pluginPath);
 const EVENT_NAME = options.event;
 const WATCH_MODE = options.watch;
 

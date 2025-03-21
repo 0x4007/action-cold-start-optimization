@@ -16,8 +16,8 @@ import fs from 'fs';
 import puppeteer, { Browser, Page } from 'puppeteer';
 
 // Configuration
-const PLUGIN_NAME = 'test-ui-plugin';
-const PLUGIN_DIR = path.join(process.cwd(), PLUGIN_NAME);
+const PLUGIN_NAME = 'test-auto-plugin';
+const PLUGIN_DIR = path.join(process.cwd(), 'plugins', PLUGIN_NAME);
 const SERVER_PORT = 3000;
 const SERVER_URL = `http://localhost:${SERVER_PORT}`;
 
@@ -48,7 +48,7 @@ async function startDevServer(): Promise<ChildProcess | null> {
 
   try {
     // Check that the plugin directory exists
-    const pluginDir = path.join(process.cwd(), PLUGIN_NAME);
+    const pluginDir = PLUGIN_DIR;
     if (!fs.existsSync(pluginDir)) {
       console.error(`Plugin directory does not exist: ${pluginDir}`);
       console.log(`Using test-ui-plugin which should already exist from previous tests`);
@@ -125,7 +125,7 @@ async function testUI(): Promise<boolean> {
     console.log(`Plugin name displayed in UI: ${pluginName}`);
 
     // Take a screenshot of the initial state
-    await page.screenshot({ path: 'test-plugin-initial.png' });
+    await page.screenshot({ path: 'screenshots/test-plugin-initial.png' });
     console.log(`Screenshot saved as test-plugin-initial.png`);
 
     // Test 1: Start the plugin
@@ -137,7 +137,7 @@ async function testUI(): Promise<boolean> {
     await sleep(5000);
 
     // Take a screenshot after starting the plugin
-    await page.screenshot({ path: 'test-plugin-started.png' });
+    await page.screenshot({ path: 'screenshots/test-plugin-started.png' });
     console.log(`Screenshot saved as test-plugin-started.png`);
 
     // Verify the plugin status
@@ -157,7 +157,7 @@ async function testUI(): Promise<boolean> {
     await sleep(500);
 
     // Take a screenshot of the events tab
-    await page.screenshot({ path: 'test-plugin-events-tab.png' });
+    await page.screenshot({ path: 'screenshots/test-plugin-events-tab.png' });
     console.log(`Screenshot saved as test-plugin-events-tab.png`);
 
     // Click the issue.opened event button
@@ -169,7 +169,7 @@ async function testUI(): Promise<boolean> {
     await sleep(2000);
 
     // Take a screenshot after triggering the event
-    await page.screenshot({ path: 'test-plugin-event-triggered.png' });
+    await page.screenshot({ path: 'screenshots/test-plugin-event-triggered.png' });
     console.log(`Screenshot saved as test-plugin-event-triggered.png`);
 
     // Test 3: Trigger a pull_request.opened event
@@ -199,7 +199,7 @@ async function testUI(): Promise<boolean> {
     await page.waitForSelector('#payload-editor', { visible: true });
 
     // Take a screenshot of the payload editor
-    await page.screenshot({ path: 'test-plugin-payload-editor.png' });
+    await page.screenshot({ path: 'screenshots/test-plugin-payload-editor.png' });
     console.log(`Screenshot saved as test-plugin-payload-editor.png`);
 
     // Clear the payload editor and set a custom payload
@@ -254,7 +254,7 @@ async function testUI(): Promise<boolean> {
     }
 
     // Take a final screenshot regardless of whether we could stop or not
-    await page.screenshot({ path: 'test-plugin-final.png' });
+    await page.screenshot({ path: 'screenshots/test-plugin-final.png' });
     console.log(`Screenshot saved as test-plugin-final.png`);
 
     // Check the final status for logging purposes (if element exists)

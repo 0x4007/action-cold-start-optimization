@@ -33,10 +33,16 @@ if (!existsSync(templatePath)) {
   process.exit(1);
 }
 
+// Create plugins directory if it doesn't exist
+const pluginsDir = resolve(process.cwd(), 'plugins');
+if (!existsSync(pluginsDir)) {
+  mkdirSync(pluginsDir, { recursive: true });
+}
+
 // Check if the destination already exists
-const destinationPath = resolve(process.cwd(), destination);
+const destinationPath = resolve(pluginsDir, destination);
 if (existsSync(destinationPath)) {
-  console.error(`Destination '${destination}' already exists`);
+  console.error(`Destination 'plugins/${destination}' already exists`);
   process.exit(1);
 }
 
@@ -44,7 +50,7 @@ if (existsSync(destinationPath)) {
 mkdirSync(destinationPath, { recursive: true });
 
 // Copy the template to the destination
-console.log(`Creating plugin from template '${template}' in '${destination}'...`);
+console.log(`Creating plugin from template '${template}' in 'plugins/${destination}'...`);
 execSync(`cp -r ${templatePath}/* ${destinationPath}/`);
 
 // Install dependencies
@@ -64,9 +70,9 @@ console.log(`
 Plugin created successfully!
 
 Next steps:
-1. Update the plugin configuration in ${join(destination, template.includes('ts') ? 'plugin.config.ts' : 'plugin.config.js')}
-2. Implement your event handlers in ${join(destination, 'src/handlers')}
+1. Update the plugin configuration in ${join('plugins/' + destination, template.includes('ts') ? 'plugin.config.ts' : 'plugin.config.js')}
+2. Implement your event handlers in ${join('plugins/' + destination, 'src/handlers')}
 3. Build and test your plugin:
-   cd ${destination}
+   cd ${join('plugins', destination)}
    npm run build
 `);

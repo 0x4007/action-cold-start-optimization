@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -116,6 +115,25 @@
     .status.stopped {
       background: #d73a49;
     }
+    .status.success {
+      background: #28a745;
+    }
+    .status.error {
+      background: #dc3545;
+    }
+    .metadata-section {
+      margin-top: 15px;
+      font-size: 0.9em;
+      border-top: 1px solid #e1e4e8;
+      padding-top: 10px;
+    }
+    .metadata-section h3 {
+      margin-top: 0;
+      font-size: 1.1em;
+    }
+    .metadata-section p {
+      margin: 5px 0;
+    }
   </style>
 </head>
 <body>
@@ -125,6 +143,9 @@
     <p>Status: <span class="status stopped" id="status-indicator"></span> <span id="status-text">Stopped</span></p>
     <button id="start-button" class="event-button">Start Plugin</button>
     <button id="stop-button" class="event-button" style="background: #d73a49; display: none;">Stop Plugin</button>
+
+    <!-- New section to display metadata -->
+    <div id="plugin-metadata" class="metadata-section"></div>
   </div>
 
   <div class="tabs">
@@ -165,6 +186,17 @@
     let pluginProcess = null;
     let currentEvent = 'issue.opened';
     let customPayloads = {};
+
+    // Store the plugin metadata
+    let pluginStatus = {
+      running: false,
+      startTime: null,
+      endTime: null,
+      exitCode: null,
+      duration: null,
+      eventCount: 0,
+      configInfo: null
+    };
 
     // Default payloads
     const defaultPayloads = {
@@ -246,14 +278,43 @@
         document.getElementById('plugin-name').textContent = info.name;
       });
 
-      socket.on('plugin-started', () => {
-        updatePluginStatus(true);
-        addLogEntry('Plugin started', 'success');
+      socket.on('plugin-started', (data) => {
+        pluginStatus.running = true;
+        pluginStatus.startTime = new Date(data.startTime);
+        pluginStatus.configInfo = data.configInfo;
+
+        updatePluginStatus();
+        addLogEntry(`Plugin started at ${formatTime(pluginStatus.startTime)}`, 'success');
+
+        // Display plugin info if available
+        if (pluginStatus.configInfo && pluginStatus.configInfo.features && pluginStatus.configInfo.features.length) {
+          addLogEntry(`Plugin features: ${pluginStatus.configInfo.features.join(', ')}`, 'info');
+        }
       });
 
-      socket.on('plugin-stopped', () => {
-        updatePluginStatus(false);
-        addLogEntry('Plugin stopped', 'info');
+      socket.on('plugin-stopped', (data) => {
+        pluginStatus.running = false;
+        pluginStatus.exitCode = data.exitCode;
+        pluginStatus.endTime = new Date(data.endTime);
+        pluginStatus.signal = data.signal;
+        pluginStatus.eventCount = data.eventCount;
+
+        // Calculate duration
+        if (pluginStatus.startTime && pluginStatus.endTime) {
+          pluginStatus.duration = (pluginStatus.endTime - pluginStatus.startTime) / 1000;
+        }
+
+        updatePluginStatus();
+
+        // Log different messages based on exit code
+        if (pluginStatus.exitCode === 0) {
+          addLogEntry(`Plugin completed successfully after ${pluginStatus.duration.toFixed(2)}s with ${pluginStatus.eventCount} events processed`, 'success');
+        } else {
+          addLogEntry(`Plugin stopped with exit code ${pluginStatus.exitCode}${pluginStatus.signal ? `, signal: ${pluginStatus.signal}` : ''} after ${pluginStatus.duration.toFixed(2)}s`, 'info');
+        }
+
+        // Update metadata display
+        updateMetadataDisplay();
       });
 
       socket.on('plugin-log', (log) => {
@@ -268,23 +329,89 @@
       socket.emit('get-plugin-info');
     });
 
-    function updatePluginStatus(running) {
+    function updatePluginStatus() {
       const indicator = document.getElementById('status-indicator');
       const text = document.getElementById('status-text');
       const startButton = document.getElementById('start-button');
       const stopButton = document.getElementById('stop-button');
+      const metadataSection = document.getElementById('plugin-metadata');
 
-      if (running) {
+      if (pluginStatus.running) {
+        // Running status
         indicator.className = 'status running';
         text.textContent = 'Running';
         startButton.style.display = 'none';
         stopButton.style.display = 'inline-block';
       } else {
-        indicator.className = 'status stopped';
-        text.textContent = 'Stopped';
+        if (pluginStatus.exitCode === 0) {
+          // Success status
+          indicator.className = 'status success';
+          text.textContent = 'Completed Successfully';
+        } else if (pluginStatus.exitCode === null) {
+          // Never started
+          indicator.className = 'status stopped';
+          text.textContent = 'Stopped';
+        } else {
+          // Error status
+          indicator.className = 'status error';
+          text.textContent = `Exited (Code: ${pluginStatus.exitCode})`;
+        }
         startButton.style.display = 'inline-block';
         stopButton.style.display = 'none';
       }
+
+      // Update the metadata display
+      updateMetadataDisplay();
+    }
+
+    // Function to update metadata display
+    function updateMetadataDisplay() {
+      const metadataSection = document.getElementById('plugin-metadata');
+      if (!metadataSection) return;
+
+      let metadataHtml = '<h3>Plugin Metadata</h3>';
+
+      if (pluginStatus.configInfo) {
+        metadataHtml += `<p><strong>Name:</strong> ${pluginStatus.configInfo.name || 'Unknown'}</p>`;
+        if (pluginStatus.configInfo.version) {
+          metadataHtml += `<p><strong>Version:</strong> ${pluginStatus.configInfo.version}</p>`;
+        }
+        if (pluginStatus.configInfo.features && pluginStatus.configInfo.features.length) {
+          metadataHtml += `<p><strong>Features:</strong> ${pluginStatus.configInfo.features.join(', ')}</p>`;
+        }
+      }
+
+      if (pluginStatus.startTime) {
+        metadataHtml += `<p><strong>Started:</strong> ${formatTime(pluginStatus.startTime)}</p>`;
+      }
+
+      if (pluginStatus.endTime) {
+        metadataHtml += `<p><strong>Ended:</strong> ${formatTime(pluginStatus.endTime)}</p>`;
+      }
+
+      if (pluginStatus.duration !== null) {
+        metadataHtml += `<p><strong>Duration:</strong> ${pluginStatus.duration.toFixed(2)}s</p>`;
+      }
+
+      if (pluginStatus.eventCount > 0) {
+        metadataHtml += `<p><strong>Events processed:</strong> ${pluginStatus.eventCount}</p>`;
+      }
+
+      if (pluginStatus.exitCode !== null) {
+        metadataHtml += `<p><strong>Exit code:</strong> ${pluginStatus.exitCode}</p>`;
+      }
+
+      if (pluginStatus.signal) {
+        metadataHtml += `<p><strong>Signal:</strong> ${pluginStatus.signal}</p>`;
+      }
+
+      metadataSection.innerHTML = metadataHtml;
+    }
+
+    // Helper function to format time
+    function formatTime(date) {
+      if (!date) return 'N/A';
+      return date.toLocaleTimeString();
     }
 
     function startPlugin() {

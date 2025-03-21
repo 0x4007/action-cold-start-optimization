@@ -24,6 +24,7 @@ const execAsync = promisify(exec);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '../..');
 const templatesDir = path.join(rootDir, 'templates');
+const pluginsDir = path.join(rootDir, 'plugins');
 
 // Template types
 const TEMPLATE_JS = 'js';
@@ -133,6 +134,11 @@ function parseCommandLineArgs() {
 async function main() {
   console.log(chalk.bold('=== WebAssembly-Optimized GitHub Actions Plugin Generator ==='));
 
+  // Create plugins directory if it doesn't exist
+  if (!fs.existsSync(pluginsDir)) {
+    fs.mkdirSync(pluginsDir, { recursive: true });
+  }
+
   // Parse command line arguments
   const options = parseCommandLineArgs();
   let answers: any;
@@ -195,7 +201,7 @@ async function main() {
     console.log(`- Author: ${answers.author}`);
     console.log(`- Template: ${answers.template}`);
     console.log(`- Features: ${answers.features.join(', ')}`);
-    console.log(`- Destination: ${answers.destination}`);
+    console.log(`- Destination: plugins/${answers.destination}`);
     console.log(`- Icon: ${answers.icon}`);
     console.log(`- Color: ${answers.color}\n`);
   } else {
@@ -266,7 +272,7 @@ async function main() {
       {
         type: 'input',
         name: 'destination',
-        message: 'Where would you like to create the plugin?',
+        message: 'What should the plugin directory be named? (Will be created in plugins/)',
         default: (answers: any) => answers.name
       },
       {
@@ -285,10 +291,10 @@ async function main() {
   }
 
   // Create destination directory if it doesn't exist
-  const destinationDir = path.resolve(process.cwd(), answers.destination);
+  const destinationDir = path.resolve(pluginsDir, answers.destination);
 
   if (fs.existsSync(destinationDir)) {
-    console.error(chalk.red(`Destination '${answers.destination}' already exists`));
+    console.error(chalk.red(`Destination 'plugins/${answers.destination}' already exists`));
     process.exit(1);
   }
 
@@ -634,10 +640,10 @@ export const handlers = {
 
   console.log(chalk.green('\nPlugin created successfully!'));
   console.log('\nNext steps:');
-  console.log(`1. Update the plugin configuration in ${answers.destination}/plugin.config.${answers.template === TEMPLATE_JS ? 'js' : 'ts'}`);
-  console.log(`2. Implement your event handlers in ${answers.destination}/src/handlers`);
+  console.log(`1. Update the plugin configuration in plugins/${answers.destination}/plugin.config.${answers.template === TEMPLATE_JS ? 'js' : 'ts'}`);
+  console.log(`2. Implement your event handlers in plugins/${answers.destination}/src/handlers`);
   console.log('3. Build and test your plugin:');
-  console.log(`   cd ${answers.destination}`);
+  console.log(`   cd plugins/${answers.destination}`);
   console.log('   bun run build');
 }
 
