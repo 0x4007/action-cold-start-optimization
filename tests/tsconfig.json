@@ -1,6 +1,7 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "baseUrl": ".", // Set the base URL for module resolution
     "types": ["bun-types"],
     "paths": {
       "bun:test": ["node_modules/bun-types/types/bun.test.d.ts"]

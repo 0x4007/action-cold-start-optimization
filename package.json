@@ -51,6 +51,7 @@
     "wasm-pack": "^0.12.1"
   },
   "dependencies": {
+    "prettier": "^3.5.3",
     "puppeteer": "^24.4.0"
   }
 }
