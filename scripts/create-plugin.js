@@ -1,9 +1,9 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 /**
  * Script to create a new plugin from a template
  * Usage: npm run create:plugin -- <template> <destination>
- * Example: npm run create:plugin -- js my-plugin
+ * Example: bun run create:plugin -- js my-plugin
  */
 
 import { execSync } from 'child_process';
@@ -33,16 +33,16 @@ if (!existsSync(templatePath)) {
   process.exit(1);
 }
 
-// Create plugins directory if it doesn't exist
-const pluginsDir = resolve(process.cwd(), 'plugins');
-if (!existsSync(pluginsDir)) {
-  mkdirSync(pluginsDir, { recursive: true });
+// Create generated directory if it doesn't exist
+const generatedDir = resolve(process.cwd(), 'generated');
+if (!existsSync(generatedDir)) {
+  mkdirSync(generatedDir, { recursive: true });
 }
 
 // Check if the destination already exists
-const destinationPath = resolve(pluginsDir, destination);
+const destinationPath = resolve(generatedDir, destination);
 if (existsSync(destinationPath)) {
-  console.error(`Destination 'plugins/${destination}' already exists`);
+  console.error(`Destination 'generated/${destination}' already exists`);
   process.exit(1);
 }
 
@@ -50,17 +50,17 @@ if (existsSync(destinationPath)) {
 mkdirSync(destinationPath, { recursive: true });
 
 // Copy the template to the destination
-console.log(`Creating plugin from template '${template}' in 'plugins/${destination}'...`);
+console.log(`Creating plugin from template '${template}' in 'generated/${destination}'...`);
 execSync(`cp -r ${templatePath}/* ${destinationPath}/`);
 
 // Install dependencies
 console.log('Installing dependencies...');
 try {
   // First, make sure the SDK is built
-  execSync('npm run build:sdk', { stdio: 'inherit' });
+  execSync('bun run build:sdk', { stdio: 'inherit' });
 
   // Then install dependencies in the new plugin
-  execSync('npm install', { cwd: destinationPath, stdio: 'inherit' });
+  execSync('bun install', { cwd: destinationPath, stdio: 'inherit' });
 } catch (error) {
   console.warn('Warning: Could not install dependencies automatically.');
   console.warn('You may need to run "npm install" manually in the plugin directory.');
@@ -70,9 +70,9 @@ console.log(`
 Plugin created successfully!
 
 Next steps:
-1. Update the plugin configuration in ${join('plugins/' + destination, template.includes('ts') ? 'plugin.config.ts' : 'plugin.config.js')}
-2. Implement your event handlers in ${join('plugins/' + destination, 'src/handlers')}
+1. Update the plugin configuration in ${join('generated/' + destination, template.includes('ts') ? 'plugin.config.ts' : 'plugin.config.js')}
+2. Implement your event handlers in ${join('generated/' + destination, 'src/handlers')}
 3. Build and test your plugin:
-   cd ${join('plugins', destination)}
-   npm run build
+   cd ${join('generated', destination)}
+   bun run build
 `);

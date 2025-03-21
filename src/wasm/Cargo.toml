@@ -1,0 +1,28 @@
+[package]
+name = "action-wasm"
+version = "0.1.0"
+edition = "2021"
+description = "WebAssembly implementation for GitHub Action with optimized cold start"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0", features = ["preserve_order"] }
+console_error_panic_hook = "0.1.7"
+sha2 = "0.10.6"
+
+# Optimize for size and speed
+[profile.release]
+# Link Time Optimization
+lto = true
+# Optimize aggressively for size
+opt-level = 'z'
+# Enable codegen units for faster compilation
+codegen-units = 1
+# Optimize for small code size
+panic = 'abort'
+# Strip debug symbols
+strip = true

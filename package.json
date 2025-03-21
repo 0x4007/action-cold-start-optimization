@@ -5,18 +5,20 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "build": "npm run build:wasm && npm run build:ts && npm run build:sdk",
+    "build": "bun run build:wasm && bun run build:ts && bun run build:sdk",
     "build:ts": "tsc",
-    "build:wasm": "cd wasm && wasm-pack build --target nodejs --out-dir ../pkg",
-    "build:bundle": "node build-bundle.js",
+    "build:wasm": "cd src/wasm && wasm-pack build --target nodejs --out-dir ../../pkg",
+    "build:bundle": "bun build-bundle.js",
     "build:optimized": "bun build-optimized.ts",
     "build:sdk": "tsc -p tsconfig.sdk.json",
     "test": "bun test",
-    "create:plugin": "node scripts/create-plugin.js",
-    "create:plugin:interactive": "bun scripts/tools/create-plugin-interactive.ts",
-    "create:plugin:auto": "bun scripts/tools/create-plugin-interactive.ts -- --non-interactive",
-    "dev:server": "bun scripts/tools/local-dev-server.ts",
-    "generate:action": "node scripts/generate-action.js"
+    "create:plugin": "bun scripts/create-plugin.js",
+    "create:plugin:interactive": "bun scripts/utils/create-plugin-interactive.ts",
+    "create:plugin:auto": "bun scripts/utils/create-plugin-interactive.ts -- --non-interactive",
+    "dev:server": "bun scripts/utils/local-dev-server.ts",
+    "generate:action": "bun scripts/generate-action.js",
+    "debug:wasm": "bun debug-wasm.ts",
+    "setup:wasm": "bash setup-wasm.sh"
   },
   "keywords": [
     "github",

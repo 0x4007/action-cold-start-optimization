@@ -12,11 +12,16 @@ This project provides a framework for building optimized GitHub Actions plugins 
 
 ## Project Structure
 
-- `src/sdk/`: Core SDK implementation
+- `src/`: Core implementation files
+  - `core/`: Main entry point and core functionality
+  - `sdk/`: Core SDK implementation
+  - `wasm/`: WebAssembly module files
 - `templates/`: Plugin templates (JavaScript, TypeScript, Rust)
-- `scripts/tools/`: Development tools
-- `test-plugins/`: Example plugins demonstrating different features
-- `.github/workflows/`: CI/CD templates for plugin testing and deployment
+- `scripts/`: Development scripts
+  - `utils/`: Development utilities
+- `generated/`: Generated plugins (empty by default)
+- `tests/`: Test files
+- `docs/`: Documentation
 
 ## Getting Started
 
@@ -47,7 +52,7 @@ bun run build:sdk
 Create a new plugin with the interactive generator:
 
 ```bash
-bun run create:plugin:interactive
+bun run create:plugin:interactive  # Creates plugin in generated/ directory
 ```
 
 This tool will guide you through creating a new plugin, allowing you to:

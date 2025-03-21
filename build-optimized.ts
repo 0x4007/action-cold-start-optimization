@@ -34,7 +34,7 @@ try {
   const env = { ...process.env };
   env.PATH = `${process.env.HOME}/.cargo/bin:${env.PATH}`;
 
-  execSync('cd wasm && wasm-pack build --target nodejs --out-dir ../pkg --release', {
+  execSync('cd src/wasm && wasm-pack build --target nodejs --out-dir ../../pkg --release', {
     stdio: 'inherit',
     env
   });
@@ -88,7 +88,7 @@ console.log(`WASM size: ${wasmBuffer.length} bytes, Base64 size: ${wasmBase64.le
 
 // Step 4: Inject the base64 string into the wasm-inline.ts file
 console.log('Injecting base64 into wasm-inline.ts...');
-const wasmInlinePath = resolve('./src/wasm-inline.ts');
+const wasmInlinePath = resolve('./src/wasm/wasm-inline.ts');
 let wasmInlineContent = readFileSync(wasmInlinePath, 'utf8');
 wasmInlineContent = wasmInlineContent.replace(
   /export const WASM_BASE64 = ['"]WASM_BASE64_PLACEHOLDER['"];/,

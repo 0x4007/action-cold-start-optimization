@@ -2,6 +2,8 @@
 
 This document outlines the implementation details for Phase 2 of the GitHub Actions Plugin SDK with WebAssembly Optimization project.
 
+*Note: This documentation has been updated to reflect the reorganized project structure.*
+
 ## Overview
 
 Phase 2 focused on enhancing the SDK with additional tools, templates, and example plugins to demonstrate the capabilities of the system. The main goals were:
@@ -13,7 +15,7 @@ Phase 2 focused on enhancing the SDK with additional tools, templates, and examp
 
 ## 1. Interactive Plugin Generator
 
-The interactive plugin generator (`scripts/tools/create-plugin-interactive.ts`) provides a user-friendly way to create new plugins from templates.
+The interactive plugin generator (`scripts/utils/create-plugin-interactive.ts`) provides a user-friendly way to create new plugins from templates.
 
 ### Features
 
@@ -38,7 +40,7 @@ bun run create:plugin:interactive
 
 ## 2. Local Development Server
 
-The local development server (`scripts/tools/local-dev-server.ts`) provides a development environment for testing plugins without deploying to GitHub.
+The local development server (`scripts/utils/local-dev-server.ts`) provides a development environment for testing plugins without deploying to GitHub.
 
 ### Features
 
@@ -58,7 +60,7 @@ The local development server (`scripts/tools/local-dev-server.ts`) provides a de
 ### Usage
 
 ```bash
-bun run dev:server --plugin-dir my-plugin
+bun run dev:server --plugin-dir generated/my-plugin
 ```
 
 ## 3. CI/CD Templates
