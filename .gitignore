@@ -42,3 +42,4 @@ Thumbs.db
 
 # Screenshots from testing
 *.png
+docs/site/.vitepress/cache/

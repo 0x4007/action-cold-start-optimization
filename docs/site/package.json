@@ -1,0 +1,24 @@
+{
+  "name": "wasm-actions-docs",
+  "version": "0.1.0",
+  "description": "Documentation for WebAssembly-Optimized GitHub Actions",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview"
+  },
+  "keywords": [
+    "github-actions",
+    "webassembly",
+    "documentation",
+    "wasm"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "vitepress": "^1.0.0",
+    "vue": "^3.3.0"
+  }
+}
