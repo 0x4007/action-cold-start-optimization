@@ -18,7 +18,8 @@
     "dev:server": "bun scripts/utils/local-dev-server.ts",
     "generate:action": "bun scripts/generate-action.js",
     "debug:wasm": "bun debug-wasm.ts",
-    "setup:wasm": "bash setup-wasm.sh"
+    "setup:wasm": "bash setup-wasm.sh",
+    "format": "prettier --write \"**/*.{js,ts,json,md}\""
   },
   "keywords": [
     "github",
