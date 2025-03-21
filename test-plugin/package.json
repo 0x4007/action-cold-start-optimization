@@ -1,0 +1,12 @@
+{
+  "name": "test-plugin",
+  "version": "1.0.0",
+  "description": "A test plugin for the local development server",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "bun run src/index.js"
+  },
+  "dependencies": {
+    "plugin-sdk": "file:../dist/sdk"
+  }
+}

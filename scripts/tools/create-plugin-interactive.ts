@@ -3,6 +3,10 @@
 /**
  * Interactive plugin generator
  * Usage: bun run create:plugin:interactive
+ *
+ * Non-interactive mode:
+ * Usage: bun run create:plugin:interactive -- --non-interactive [options]
+ * Example: bun run create:plugin:interactive -- --non-interactive --name my-plugin --template ts --features issues,pr
  */
 
 import inquirer from 'inquirer';
@@ -12,6 +16,7 @@ import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { Command } from 'commander';
 
 const execAsync = promisify(exec);
 
@@ -103,92 +108,181 @@ function kebabToCamelCase(str: string): string {
     .join('');
 }
 
+// Parse command line arguments
+function parseCommandLineArgs() {
+  const program = new Command();
+
+  program
+    .name('create-plugin-interactive')
+    .description('Create a new plugin with interactive prompts or non-interactive mode')
+    .option('--non-interactive', 'Run in non-interactive mode')
+    .option('--name <name>', 'Name of the plugin')
+    .option('--description <description>', 'Description of the plugin')
+    .option('--author <author>', 'Author of the plugin')
+    .option('--template <template>', 'Template to use (js, ts, rust)')
+    .option('--features <features>', 'Comma-separated list of features (issues,pr,repo,external)')
+    .option('--destination <destination>', 'Destination directory')
+    .option('--icon <icon>', 'GitHub Action icon')
+    .option('--color <color>', 'GitHub Action color');
+
+  program.parse();
+  return program.opts();
+}
+
 // Main function
 async function main() {
   console.log(chalk.bold('=== WebAssembly-Optimized GitHub Actions Plugin Generator ==='));
-  console.log('This tool will help you create a new plugin from a template.\n');
 
-  // Get plugin information
-  const answers = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'name',
-      message: 'What is the name of your plugin?',
-      default: 'my-plugin'
-    },
-    {
-      type: 'input',
-      name: 'description',
-      message: 'Provide a short description of your plugin:',
-      default: 'A GitHub Action plugin'
-    },
-    {
-      type: 'input',
-      name: 'author',
-      message: 'What is your name (for the author field)?',
-      default: 'Your Name'
-    },
-    {
-      type: 'list',
-      name: 'template',
-      message: 'Which template would you like to use?',
-      choices: [
-        {
-          name: `${templateDescriptions[TEMPLATE_JS].name} - ${templateDescriptions[TEMPLATE_JS].description}`,
-          value: TEMPLATE_JS
-        },
-        {
-          name: `${templateDescriptions[TEMPLATE_TS].name} - ${templateDescriptions[TEMPLATE_TS].description}`,
-          value: TEMPLATE_TS
-        },
-        {
-          name: `${templateDescriptions[TEMPLATE_RUST].name} - ${templateDescriptions[TEMPLATE_RUST].description}`,
-          value: TEMPLATE_RUST
-        }
-      ]
-    },
-    {
-      type: 'checkbox',
-      name: 'features',
-      message: 'Which features would you like to include?',
-      choices: [
-        {
-          name: `${featureDescriptions[FEATURE_ISSUES].name} - ${featureDescriptions[FEATURE_ISSUES].description}`,
-          value: FEATURE_ISSUES
-        },
-        {
-          name: `${featureDescriptions[FEATURE_PR].name} - ${featureDescriptions[FEATURE_PR].description}`,
-          value: FEATURE_PR
-        },
-        {
-          name: `${featureDescriptions[FEATURE_REPO].name} - ${featureDescriptions[FEATURE_REPO].description}`,
-          value: FEATURE_REPO
-        },
-        {
-          name: `${featureDescriptions[FEATURE_EXTERNAL].name} - ${featureDescriptions[FEATURE_EXTERNAL].description}`,
-          value: FEATURE_EXTERNAL
-        }
-      ]
-    },
-    {
-      type: 'input',
-      name: 'destination',
-      message: 'Where would you like to create the plugin?',
-      default: (answers: any) => answers.name
-    },
-    {
-      type: 'list',
-      name: 'icon',
-      message: 'Choose an icon for your GitHub Action:',
-      choices: ICONS
-    },
-    {
-      type: 'list',
-      name: 'color',
-      message: 'Choose a color for your GitHub Action:',
-      choices: COLORS
+  // Parse command line arguments
+  const options = parseCommandLineArgs();
+  let answers: any;
+
+  if (options.nonInteractive) {
+    console.log('Running in non-interactive mode...\n');
+
+    // Validate template
+    if (options.template && !['js', 'ts', 'rust'].includes(options.template)) {
+      console.error(chalk.red(`Invalid template: ${options.template}`));
+      console.error('Available templates: js, ts, rust');
+      process.exit(1);
     }
-  ]);
+
+    // Parse features
+    let features: string[] = [];
+    if (options.features) {
+      // Split by comma and trim each feature
+      features = options.features.split(',').map(f => f.trim());
+
+      // Validate features
+      const validFeatures = [FEATURE_ISSUES, FEATURE_PR, FEATURE_REPO, FEATURE_EXTERNAL];
+      for (const feature of features) {
+        if (!validFeatures.includes(feature)) {
+          console.error(chalk.red(`Invalid feature: ${feature}`));
+          console.error(`Available features: ${validFeatures.join(', ')}`);
+          process.exit(1);
+        }
+      }
+    }
+
+    // Use provided values or defaults
+    answers = {
+      name: options.name || 'my-plugin',
+      description: options.description || 'A GitHub Action plugin',
+      author: options.author || 'Your Name',
+      template: options.template || 'ts',
+      features: features.length > 0 ? features : [FEATURE_ISSUES],
+      destination: options.destination || options.name || 'my-plugin',
+      icon: options.icon || 'rocket',
+      color: options.color || 'blue'
+    };
+
+    // Validate icon and color
+    if (answers.icon && !ICONS.includes(answers.icon)) {
+      console.error(chalk.red(`Invalid icon: ${answers.icon}`));
+      console.error(`Available icons: ${ICONS.join(', ')}`);
+      process.exit(1);
+    }
+
+    if (answers.color && !COLORS.includes(answers.color)) {
+      console.error(chalk.red(`Invalid color: ${answers.color}`));
+      console.error(`Available colors: ${COLORS.join(', ')}`);
+      process.exit(1);
+    }
+
+    console.log('Using the following configuration:');
+    console.log(`- Name: ${answers.name}`);
+    console.log(`- Description: ${answers.description}`);
+    console.log(`- Author: ${answers.author}`);
+    console.log(`- Template: ${answers.template}`);
+    console.log(`- Features: ${answers.features.join(', ')}`);
+    console.log(`- Destination: ${answers.destination}`);
+    console.log(`- Icon: ${answers.icon}`);
+    console.log(`- Color: ${answers.color}\n`);
+  } else {
+    console.log('This tool will help you create a new plugin from a template.\n');
+
+    // Get plugin information through interactive prompts
+    answers = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'name',
+        message: 'What is the name of your plugin?',
+        default: 'my-plugin'
+      },
+      {
+        type: 'input',
+        name: 'description',
+        message: 'Provide a short description of your plugin:',
+        default: 'A GitHub Action plugin'
+      },
+      {
+        type: 'input',
+        name: 'author',
+        message: 'What is your name (for the author field)?',
+        default: 'Your Name'
+      },
+      {
+        type: 'list',
+        name: 'template',
+        message: 'Which template would you like to use?',
+        choices: [
+          {
+            name: `${templateDescriptions[TEMPLATE_JS].name} - ${templateDescriptions[TEMPLATE_JS].description}`,
+            value: TEMPLATE_JS
+          },
+          {
+            name: `${templateDescriptions[TEMPLATE_TS].name} - ${templateDescriptions[TEMPLATE_TS].description}`,
+            value: TEMPLATE_TS
+          },
+          {
+            name: `${templateDescriptions[TEMPLATE_RUST].name} - ${templateDescriptions[TEMPLATE_RUST].description}`,
+            value: TEMPLATE_RUST
+          }
+        ]
+      },
+      {
+        type: 'checkbox',
+        name: 'features',
+        message: 'Which features would you like to include?',
+        choices: [
+          {
+            name: `${featureDescriptions[FEATURE_ISSUES].name} - ${featureDescriptions[FEATURE_ISSUES].description}`,
+            value: FEATURE_ISSUES
+          },
+          {
+            name: `${featureDescriptions[FEATURE_PR].name} - ${featureDescriptions[FEATURE_PR].description}`,
+            value: FEATURE_PR
+          },
+          {
+            name: `${featureDescriptions[FEATURE_REPO].name} - ${featureDescriptions[FEATURE_REPO].description}`,
+            value: FEATURE_REPO
+          },
+          {
+            name: `${featureDescriptions[FEATURE_EXTERNAL].name} - ${featureDescriptions[FEATURE_EXTERNAL].description}`,
+            value: FEATURE_EXTERNAL
+          }
+        ]
+      },
+      {
+        type: 'input',
+        name: 'destination',
+        message: 'Where would you like to create the plugin?',
+        default: (answers: any) => answers.name
+      },
+      {
+        type: 'list',
+        name: 'icon',
+        message: 'Choose an icon for your GitHub Action:',
+        choices: ICONS
+      },
+      {
+        type: 'list',
+        name: 'color',
+        message: 'Choose a color for your GitHub Action:',
+        choices: COLORS
+      }
+    ]);
+  }
 
   // Create destination directory if it doesn't exist
   const destinationDir = path.resolve(process.cwd(), answers.destination);
@@ -291,16 +385,33 @@ async function main() {
     // Copy handlers
     handlers.forEach(handler => {
       const templateHandler = 'src/handlers/issue-opened.js'; // Use as a base template
-      processTemplateFile(templateHandler, {
+
+      // Read template file
+      let content = fs.readFileSync(path.join(templateDir, templateHandler), 'utf8');
+
+      // Replace template variables
+      const templateVars = {
         handler,
         handlerName: handlerNameMap[handler]
+      };
+
+      Object.entries(templateVars).forEach(([key, value]) => {
+        const regex = new RegExp(`{{${key}}}`, 'g');
+        content = content.replace(regex, value.toString());
       });
 
-      // Rename the file
-      fs.renameSync(
-        path.join(destinationDir, templateHandler),
-        path.join(destinationDir, 'src/handlers', `${handler}.js`)
-      );
+      // Write directly to the final destination
+      const finalPath = path.join(destinationDir, 'src/handlers', `${handler}.js`);
+
+      // Create directory if it doesn't exist
+      const dir = path.dirname(finalPath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+
+      // Write file
+      fs.writeFileSync(finalPath, content);
+      console.log(`Created ${finalPath}`);
     });
 
     // Create handlers/index.js
@@ -351,16 +462,36 @@ export const handlers = {
     // Copy handlers
     handlers.forEach(handler => {
       const templateHandler = 'src/handlers/issue-opened.ts'; // Use as a base template
-      processTemplateFile(templateHandler, {
+
+      // Create a temporary file path for processing
+      const tempFilePath = path.join(destinationDir, `temp-${handler}.ts`);
+
+      // Read template file
+      let content = fs.readFileSync(path.join(templateDir, templateHandler), 'utf8');
+
+      // Replace template variables
+      const templateVars = {
         handler,
         handlerName: handlerNameMap[handler]
+      };
+
+      Object.entries(templateVars).forEach(([key, value]) => {
+        const regex = new RegExp(`{{${key}}}`, 'g');
+        content = content.replace(regex, value.toString());
       });
 
-      // Rename the file
-      fs.renameSync(
-        path.join(destinationDir, templateHandler),
-        path.join(destinationDir, 'src/handlers', `${handler}.ts`)
-      );
+      // Write directly to the final destination
+      const finalPath = path.join(destinationDir, 'src/handlers', `${handler}.ts`);
+
+      // Create directory if it doesn't exist
+      const dir = path.dirname(finalPath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+
+      // Write file
+      fs.writeFileSync(finalPath, content);
+      console.log(`Created ${finalPath}`);
     });
 
     // Create handlers/index.ts
@@ -414,16 +545,36 @@ export const handlers = {
     // Copy handlers
     handlers.forEach(handler => {
       const templateHandler = 'src/handlers/issue-opened.ts'; // Use as a base template
-      processTemplateFile(templateHandler, {
+
+      // Create a temporary file path for processing
+      const tempFilePath = path.join(destinationDir, `temp-${handler}.ts`);
+
+      // Read template file
+      let content = fs.readFileSync(path.join(templateDir, templateHandler), 'utf8');
+
+      // Replace template variables
+      const templateVars = {
         handler,
         handlerName: handlerNameMap[handler]
+      };
+
+      Object.entries(templateVars).forEach(([key, value]) => {
+        const regex = new RegExp(`{{${key}}}`, 'g');
+        content = content.replace(regex, value.toString());
       });
 
-      // Rename the file
-      fs.renameSync(
-        path.join(destinationDir, templateHandler),
-        path.join(destinationDir, 'src/handlers', `${handler}.ts`)
-      );
+      // Write directly to the final destination
+      const finalPath = path.join(destinationDir, 'src/handlers', `${handler}.ts`);
+
+      // Create directory if it doesn't exist
+      const dir = path.dirname(finalPath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+
+      // Write file
+      fs.writeFileSync(finalPath, content);
+      console.log(`Created ${finalPath}`);
     });
 
     // Create handlers/index.ts

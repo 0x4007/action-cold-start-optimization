@@ -1,16 +1,16 @@
 /**
- * Plugin configuration for the Issue Auto-Labeler
+ * Plugin configuration for {{name}}
  * This is a Full Stack with Rust implementation (Tier 3)
  */
 
 export default {
-  name: 'Issue Auto-Labeler',
-  description: 'Automatically labels issues based on content',
-  author: 'Your Name',
+  name: '{{name}}',
+  description: '{{description}}',
+  author: '{{author}}',
 
   action: {
-    icon: 'tag',
-    color: 'green',
+    icon: '{{icon}}',
+    color: '{{color}}',
     inputs: {
       labelMapping: {
         description: 'JSON mapping of keywords to labels',
@@ -29,6 +29,6 @@ export default {
 
   // Event handlers
   events: {
-    'issues.opened': './src/handlers/issue-opened.ts'
+    {{events}}
   }
 };

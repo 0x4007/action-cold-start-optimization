@@ -14,6 +14,7 @@
     "test": "bun test",
     "create:plugin": "node scripts/create-plugin.js",
     "create:plugin:interactive": "bun scripts/tools/create-plugin-interactive.ts",
+    "create:plugin:auto": "bun scripts/tools/create-plugin-interactive.ts -- --non-interactive",
     "dev:server": "bun scripts/tools/local-dev-server.ts",
     "generate:action": "node scripts/generate-action.js"
   },
@@ -46,5 +47,8 @@
     "ts-node": "^10.9.2",
     "typescript": "latest",
     "wasm-pack": "^0.12.1"
+  },
+  "dependencies": {
+    "puppeteer": "^24.4.0"
   }
 }

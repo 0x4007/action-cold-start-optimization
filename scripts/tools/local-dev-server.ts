@@ -54,345 +54,41 @@ if (!fs.existsSync(publicDir)) {
   fs.mkdirSync(publicDir, { recursive: true });
 }
 
-// Create a simple HTML dashboard
-const dashboardHtml = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plugin Development Server</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      color: #333;
-    }
-    h1, h2 {
-      color: #0366d6;
-    }
-    .card {
-      background: #f6f8fa;
-      border: 1px solid #e1e4e8;
-      border-radius: 6px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .event-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 10px;
-    }
-    .event-button {
-      background: #0366d6;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 8px 12px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.2s;
-    }
-    .event-button:hover {
-      background: #0255b3;
-    }
-    pre {
-      background: #f6f8fa;
-      border: 1px solid #e1e4e8;
-      border-radius: 6px;
-      padding: 16px;
-      overflow: auto;
-      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-      font-size: 14px;
-    }
-    .log-container {
-      height: 300px;
-      overflow-y: auto;
-      background: #f6f8fa;
-      border: 1px solid #e1e4e8;
-      border-radius: 6px;
-      padding: 16px;
-      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-      font-size: 14px;
-    }
-    .log-entry {
-      margin: 4px 0;
-      white-space: pre-wrap;
-      word-break: break-all;
-    }
-    .log-info {
-      color: #0366d6;
-    }
-    .log-error {
-      color: #d73a49;
-    }
-    .log-success {
-      color: #22863a;
-    }
-    .tabs {
-      display: flex;
-      border-bottom: 1px solid #e1e4e8;
-      margin-bottom: 16px;
-    }
-    .tab {
-      padding: 8px 16px;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-    }
-    .tab.active {
-      border-bottom: 2px solid #0366d6;
-      font-weight: bold;
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    .payload-editor {
-      width: 100%;
-      height: 300px;
-      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-      font-size: 14px;
-      padding: 8px;
-      border: 1px solid #e1e4e8;
-      border-radius: 6px;
-    }
-    .status {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-right: 8px;
-    }
-    .status.running {
-      background: #22863a;
-    }
-    .status.stopped {
-      background: #d73a49;
-    }
-  </style>
-</head>
-<body>
-  <h1>Plugin Development Server</h1>
-  <div class="card">
-    <h2>Plugin: <span id="plugin-name">Loading...</span></h2>
-    <p>Status: <span class="status stopped" id="status-indicator"></span> <span id="status-text">Stopped</span></p>
-    <button id="start-button" class="event-button">Start Plugin</button>
-    <button id="stop-button" class="event-button" style="background: #d73a49; display: none;">Stop Plugin</button>
-  </div>
+// Read the dashboard HTML template from file
+const templatePath = path.join(__dirname, 'dashboard-template.html');
+let dashboardHtml = '';
 
-  <div class="tabs">
-    <div class="tab active" data-tab="events">Events</div>
-    <div class="tab" data-tab="logs">Logs</div>
-    <div class="tab" data-tab="payload">Payload Editor</div>
-  </div>
-
-  <div class="tab-content active" id="events-tab">
-    <h2>Trigger Events</h2>
-    <div class="event-list" id="event-list">
-      <button class="event-button" data-event="issue.opened">issue.opened</button>
-      <button class="event-button" data-event="issue.closed">issue.closed</button>
-      <button class="event-button" data-event="issue.labeled">issue.labeled</button>
-      <button class="event-button" data-event="pull_request.opened">pull_request.opened</button>
-      <button class="event-button" data-event="pull_request.review">pull_request.review</button>
-      <button class="event-button" data-event="push">push</button>
-      <button class="event-button" data-event="release">release</button>
-      <button class="event-button" data-event="external.service">external.service</button>
-    </div>
-  </div>
-
-  <div class="tab-content" id="logs-tab">
-    <h2>Logs</h2>
-    <div class="log-container" id="log-container"></div>
-  </div>
-
-  <div class="tab-content" id="payload-tab">
-    <h2>Payload Editor</h2>
-    <p>Customize the event payload:</p>
-    <textarea id="payload-editor" class="payload-editor"></textarea>
-    <button id="save-payload" class="event-button" style="margin-top: 10px;">Save Payload</button>
-  </div>
-
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
-    let pluginProcess = null;
-    let currentEvent = 'issue.opened';
-    let customPayloads = {};
-
-    // Default payloads
-    const defaultPayloads = {
-      'issue.opened': {
-        issue: {
-          number: 1,
-          title: 'Test Issue',
-          body: 'This is a test issue created by the development server.',
-          labels: []
-        },
-        repository: {
-          owner: {
-            login: 'test-user'
-          },
-          name: 'test-repo'
-        }
-      },
-      'external.service': {
-        issue: {
-          number: 1,
-          title: 'Test Issue for External Service',
-          body: 'This is a test issue for external service integration.',
-          labels: []
-        },
-        repository: {
-          owner: {
-            login: 'test-user'
-          },
-          name: 'test-repo'
-        }
-      }
-    };
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      // Tab switching
-      document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
-          tab.classList.add('active');
-          document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
-        });
-      });
-
-      // Event buttons
-      document.querySelectorAll('.event-button[data-event]').forEach(button => {
-        button.addEventListener('click', () => {
-          currentEvent = button.dataset.event;
-          triggerEvent(currentEvent);
-        });
-      });
-
-      // Start/Stop buttons
-      document.getElementById('start-button').addEventListener('click', startPlugin);
-      document.getElementById('stop-button').addEventListener('click', stopPlugin);
-
-      // Payload editor
-      const payloadEditor = document.getElementById('payload-editor');
-      payloadEditor.value = JSON.stringify(defaultPayloads['issue.opened'] || {}, null, 2);
-
-      document.getElementById('save-payload').addEventListener('click', () => {
-        try {
-          const payload = JSON.parse(payloadEditor.value);
-          customPayloads[currentEvent] = payload;
-          addLogEntry('Payload saved for event: ' + currentEvent, 'success');
-        } catch (error) {
-          addLogEntry('Invalid JSON: ' + error.message, 'error');
-        }
-      });
-
-      // Socket events
-      socket.on('connect', () => {
-        addLogEntry('Connected to development server', 'info');
-      });
-
-      socket.on('plugin-info', (info) => {
-        document.getElementById('plugin-name').textContent = info.name;
-      });
-
-      socket.on('plugin-started', () => {
-        updatePluginStatus(true);
-        addLogEntry('Plugin started', 'success');
-      });
-
-      socket.on('plugin-stopped', () => {
-        updatePluginStatus(false);
-        addLogEntry('Plugin stopped', 'info');
-      });
-
-      socket.on('plugin-log', (log) => {
-        addLogEntry(log.message, log.type);
-      });
-
-      socket.on('event-triggered', (data) => {
-        addLogEntry(`Event triggered: ${data.event}`, 'info');
-      });
-
-      // Request plugin info
-      socket.emit('get-plugin-info');
-    });
-
-    function updatePluginStatus(running) {
-      const indicator = document.getElementById('status-indicator');
-      const text = document.getElementById('status-text');
-      const startButton = document.getElementById('start-button');
-      const stopButton = document.getElementById('stop-button');
-
-      if (running) {
-        indicator.className = 'status running';
-        text.textContent = 'Running';
-        startButton.style.display = 'none';
-        stopButton.style.display = 'inline-block';
-      } else {
-        indicator.className = 'status stopped';
-        text.textContent = 'Stopped';
-        startButton.style.display = 'inline-block';
-        stopButton.style.display = 'none';
-      }
-    }
-
-    function startPlugin() {
-      socket.emit('start-plugin');
-    }
-
-    function stopPlugin() {
-      socket.emit('stop-plugin');
-    }
-
-    function triggerEvent(event) {
-      const payload = customPayloads[event] || defaultPayloads[event] || {};
-      socket.emit('trigger-event', { event, payload });
-
-      // Update payload editor with current event's payload
-      const payloadEditor = document.getElementById('payload-editor');
-      payloadEditor.value = JSON.stringify(customPayloads[event] || defaultPayloads[event] || {}, null, 2);
-
-      // Switch to logs tab
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      document.querySelector('.tab[data-tab="logs"]').classList.add('active');
-      document.getElementById('logs-tab').classList.add('active');
-    }
-
-    function addLogEntry(message, type = 'info') {
-      const logContainer = document.getElementById('log-container');
-      const entry = document.createElement('div');
-      entry.className = `log-entry log-${type}`;
-      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-      logContainer.appendChild(entry);
-      logContainer.scrollTop = logContainer.scrollHeight;
-    }
-  </script>
-</body>
-</html>
-`;
+try {
+  dashboardHtml = fs.readFileSync(templatePath, 'utf8');
+  console.log(chalk.green(`Loaded dashboard template from ${templatePath}`));
+} catch (error) {
+  console.error(chalk.red(`Error loading dashboard template: ${error.message}`));
+  dashboardHtml = `<!DOCTYPE html>
+  <html>
+  <head><title>Error</title></head>
+  <body>
+    <h1>Error loading template</h1>
+    <p>Please make sure the dashboard-template.html file exists.</p>
+  </body>
+  </html>`;
+}
 
 // Write the dashboard HTML to the public directory
 fs.writeFileSync(path.join(publicDir, 'index.html'), dashboardHtml);
 
 // Basic validation of the JavaScript in the template
 try {
+  const scriptMatch = dashboardHtml.match(/<script>([\s\S]*?)<\/script>/);
+  const scriptContent = scriptMatch ? scriptMatch[1] : '';
+
   // This won't catch all errors, but it can catch syntax errors
-  new Function(dashboardHtml.match(/<script>([\s\S]*?)<\/script>/)?.[1] || '');
+  new Function(scriptContent);
 } catch (error) {
   console.warn(chalk.yellow(`Warning: JavaScript in HTML template may have errors: ${error.message}`));
 }
 
 // Sample event payloads
-const eventPayloads = {
+const eventPayloads: Record<string, any> = {
   'issue.opened': {
     issue: {
       number: 1,
@@ -423,8 +119,94 @@ const eventPayloads = {
   }
 };
 
-// Plugin process
-let pluginProcess = null;
+// Plugin process and metadata
+let pluginProcess: any = null;
+
+interface PluginConfigInfo {
+  name: string;
+  version?: string | null;
+  features?: string[];
+  icon?: string | null;
+  color?: string | null;
+  packageJson?: any;
+}
+
+interface PluginMetadata {
+  startTime: Date | null;
+  endTime: Date | null;
+  exitCode: number | null;
+  signal: string | null;
+  stdout: string;
+  stderr: string;
+  eventCount: number;
+  configInfo: PluginConfigInfo | null;
+}
+
+let pluginMetadata: PluginMetadata = {
+  startTime: null,
+  endTime: null,
+  exitCode: null,
+  signal: null,
+  stdout: '',
+  stderr: '',
+  eventCount: 0,
+  configInfo: null  // Will store plugin config info
+};
+
+// Helper function to extract plugin config information
+function getPluginConfigInfo(): PluginConfigInfo {
+  try {
+    const configPath = path.join(PLUGIN_DIR, 'plugin.config.js');
+    const configTsPath = path.join(PLUGIN_DIR, 'plugin.config.ts');
+    const packagePath = path.join(PLUGIN_DIR, 'package.json');
+
+    const info: PluginConfigInfo = {
+      name: path.basename(PLUGIN_DIR),
+      version: null,
+      features: [],
+      icon: null,
+      color: null,
+      packageJson: null
+    };
+
+    // Try to get info from package.json
+    if (fs.existsSync(packagePath)) {
+      const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+      info.version = packageJson.version;
+      info.packageJson = packageJson;
+    }
+
+    // Try to extract from config files
+    if (fs.existsSync(configPath)) {
+      const config = require(configPath);
+      Object.assign(info, {
+        name: config.name || info.name,
+        features: config.features || info.features,
+        icon: config.icon || info.icon,
+        color: config.color || info.color
+      });
+    } else if (fs.existsSync(configTsPath)) {
+      // For TS files we can't directly require, so we read as text and extract basic info
+      const configContent = fs.readFileSync(configTsPath, 'utf8');
+      const nameMatch = configContent.match(/name:\s*['"]([^'"]+)['"]/);
+      if (nameMatch) info.name = nameMatch[1];
+
+      const featuresMatch = configContent.match(/features:\s*\[(.*?)\]/s);
+      if (featuresMatch) {
+        const featuresStr = featuresMatch[1];
+        const featuresItems = featuresStr.match(/['"]([^'"]+)['"]/g);
+        if (featuresItems) {
+          info.features = featuresItems.map(item => item.replace(/['"]/g, ''));
+        }
+      }
+    }
+
+    return info;
+  } catch (error) {
+    console.error(chalk.red(`Error getting plugin config info: ${error.message}`));
+    return { name: path.basename(PLUGIN_DIR) };
+  }
+}
 
 // Start the plugin
 function startPlugin() {
@@ -433,34 +215,66 @@ function startPlugin() {
     return;
   }
 
+  // Reset metadata for new run
+  pluginMetadata = {
+    startTime: new Date(),
+    endTime: null,
+    exitCode: null,
+    signal: null,
+    stdout: '',
+    stderr: '',
+    eventCount: 0,
+    configInfo: getPluginConfigInfo()
+  };
+
   console.log(chalk.green(`Starting plugin from ${PLUGIN_DIR}`));
 
   // Execute the plugin
-  pluginProcess = exec(`cd ${PLUGIN_DIR} && bun run src/index.js`, (error, stdout, stderr) => {
+  pluginProcess = exec(`cd ${PLUGIN_DIR} && bun run src/index.js`, (error: any, stdout: string, stderr: string) => {
     if (error) {
       console.error(chalk.red(`Plugin execution error: ${error.message}`));
       io.emit('plugin-log', { message: `Execution error: ${error.message}`, type: 'error' });
+      pluginMetadata.stderr += stderr;
       return;
     }
 
     if (stderr) {
       console.error(chalk.red(`Plugin stderr: ${stderr}`));
       io.emit('plugin-log', { message: `stderr: ${stderr}`, type: 'error' });
+      pluginMetadata.stderr += stderr;
     }
 
     console.log(chalk.green(`Plugin stdout: ${stdout}`));
     io.emit('plugin-log', { message: stdout, type: 'info' });
+    pluginMetadata.stdout += stdout;
   });
 
   // Handle plugin process events
-  pluginProcess.on('exit', (code) => {
-    console.log(chalk.yellow(`Plugin process exited with code ${code}`));
-    io.emit('plugin-log', { message: `Plugin process exited with code ${code}`, type: 'info' });
-    io.emit('plugin-stopped');
-    pluginProcess = null;
-  });
+  if (pluginProcess) {
+    pluginProcess.on('exit', (code: number | null, signal: string | null) => {
+      pluginMetadata.endTime = new Date();
+      pluginMetadata.exitCode = code;
+      pluginMetadata.signal = signal;
 
-  io.emit('plugin-started');
+      const duration = pluginMetadata.endTime && pluginMetadata.startTime ?
+        (pluginMetadata.endTime.getTime() - pluginMetadata.startTime.getTime()) / 1000 : 0; // in seconds
+
+      console.log(chalk.yellow(`Plugin process exited with code ${code}${signal ? `, signal: ${signal}` : ''}`));
+      io.emit('plugin-log', {
+        message: `Plugin process exited with code ${code}${signal ? `, signal: ${signal}` : ''} after ${duration.toFixed(2)}s`,
+        type: 'info'
+      });
+
+      // Send complete metadata to the UI
+      io.emit('plugin-stopped', pluginMetadata);
+      pluginProcess = null;
+    });
+  }
+
+  io.emit('plugin-started', {
+    startTime: pluginMetadata.startTime,
+    configInfo: pluginMetadata.configInfo
+  });
 }
 
 // Stop the plugin
@@ -473,14 +287,17 @@ function stopPlugin() {
   console.log(chalk.yellow('Stopping plugin'));
   pluginProcess.kill();
   pluginProcess = null;
-  io.emit('plugin-stopped');
+  io.emit('plugin-stopped', pluginMetadata);
 }
 
 // Trigger an event
-function triggerEvent(eventName, payload) {
+function triggerEvent(eventName: string, payload: any) {
   console.log(chalk.blue(`Triggering event: ${eventName}`));
   io.emit('plugin-log', { message: `Triggering event: ${eventName}`, type: 'info' });
   io.emit('event-triggered', { event: eventName });
+
+  // Increment event count in metadata
+  pluginMetadata.eventCount++;
 
   // In a real implementation, this would send the event to the plugin
   // For now, we'll just log it
@@ -526,7 +343,7 @@ io.on('connection', (socket) => {
   });
 
   // Trigger event
-  socket.on('trigger-event', (data) => {
+  socket.on('trigger-event', (data: { event: string, payload?: any }) => {
     const { event, payload } = data;
     triggerEvent(event, payload || eventPayloads[event] || {});
   });

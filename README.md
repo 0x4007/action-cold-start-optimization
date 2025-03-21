@@ -56,6 +56,26 @@ This tool will guide you through creating a new plugin, allowing you to:
 - Customize plugin metadata
 - Generate a complete plugin structure
 
+#### Non-Interactive Mode
+
+You can also create plugins non-interactively by using the `--non-interactive` flag with optional parameters:
+
+```bash
+bun run create:plugin:auto -- --name my-plugin --template ts --features issues,pr
+```
+
+Available options:
+- `--name`: Name of the plugin (default: "my-plugin")
+- `--description`: Description of the plugin (default: "A GitHub Action plugin")
+- `--author`: Author of the plugin (default: "Your Name")
+- `--template`: Template to use - js, ts, or rust (default: "ts")
+- `--features`: Comma-separated list of features - issues, pr, repo, external (default: "issues")
+- `--destination`: Destination directory (default: same as name)
+- `--icon`: GitHub Action icon (default: "rocket")
+- `--color`: GitHub Action color (default: "blue")
+
+This is useful for CI/CD pipelines or scripted plugin creation.
+
 ### Local Development Server
 
 Test your plugin with the local development server:
